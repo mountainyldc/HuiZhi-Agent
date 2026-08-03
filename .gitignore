@@ -1,0 +1,12 @@
+# 行内内部素材（访谈/需求分析原始文档），不入库
+docs/
+# 旧版整合文档，不再维护
+_archived/
+
+# 系统与编辑器
+Thumbs.db
+.DS_Store
+.idea/
+.vscode/
+*.tmp
+*.log

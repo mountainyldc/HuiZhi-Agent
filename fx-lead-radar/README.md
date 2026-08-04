@@ -27,6 +27,19 @@ python engines/serve.py                # 打开 http://127.0.0.1:8000
 # 方式B：直接双击 web/index.html（静态模式，状态仅本次会话生效）
 ```
 
+## Pi Web（桌面端）用法
+
+1. `cd E:\pi-web\pi-web` → `npm start` → 打开 http://127.0.0.1:30141
+2. 左侧 `Select project...` 选 `基于picoding-agent的企业外汇需求商机雷达agent实现`
+3. 聊天框输入 **`跑一遍企业外汇需求商机雷达`**（推荐，按一次回车）即自动跑全流程；
+   输 `/radar` 也可以，但 pi-web 里第一次回车只是补全命令，需再按一次回车发送
+4. 流程跑完后，另开终端：
+   ```bash
+   cd E:\2026工行实习\基于picoding-agent的企业外汇需求商机雷达agent实现\fx-lead-radar
+   python engines\serve.py   # 打开 http://127.0.0.1:8000 看商机队列（证据可点击）
+   ```
+> 注：pi-web 通过全局扩展运行引擎，数据默认落在所选项目的 `fx-lead-radar\data\` 与 `web\index.html`（与 CLI 一致）。
+
 ## Pi Agent 集成
 
 ```bash

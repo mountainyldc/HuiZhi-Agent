@@ -32,11 +32,25 @@ function resolveEnginesDir(): string {
 
 const ENGINES_DIR = resolveEnginesDir();
 
-function runPython(script: string, args: string[]): { content: { type: "text"; text: string }[]; isError: boolean } {
+// 优先使用会话项目目录下的引擎，保证数据落在项目里（与 CLI 一致）；否则回退全局引擎目录
+function resolveEnginesForCwd(cwd: string | undefined): string {
+  if (cwd) {
+    const candidates = [
+      join(cwd, "fx-lead-radar", "engines"),
+      join(cwd, "engines"),
+    ];
+    for (const c of candidates) {
+      if (existsSync(c)) return c;
+    }
+  }
+  return ENGINES_DIR;
+}
+
+function runPython(script: string, args: string[], enginesDir: string = ENGINES_DIR): { content: { type: "text"; text: string }[]; isError: boolean } {
   try {
     const out = execFileSync(
       "python",
-      [join(ENGINES_DIR, script), ...args],
+      [join(enginesDir, script), ...args],
       { encoding: "utf-8", timeout: 180000 }
     );
     return { content: [{ type: "text", text: out.trim() }], isError: false };
@@ -63,11 +77,11 @@ const crawlTool = {
     days: Type.Optional(Type.Integer({ description: "日期窗口天数，默认45" })),
     force_sample: Type.Optional(Type.Boolean({ description: "强制使用样例数据" })),
   }),
-  async execute(_toolCallId: string, params: any) {
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
     const args: string[] = [];
     if (params.days) args.push("--days", String(params.days));
     if (params.force_sample) args.push("--force-sample");
-    return runPython("crawl_cninfo.py", args);
+    return runPython("crawl_cninfo.py", args, resolveEnginesForCwd(ctx?.cwd));
   },
 };
 
@@ -86,12 +100,13 @@ const crawlNewsTool = {
     source: Type.Optional(Type.String({ description: "sina / eastmoney / all（默认 all）" })),
     pages: Type.Optional(Type.Integer({ description: "抓取页数，默认新浪10页/东财5页" })),
   }),
-  async execute(_toolCallId: string, params: any) {
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
     const source = params.source || "all";
     const pagesArgs = params.pages ? ["--pages", String(params.pages)] : [];
+    const ed = resolveEnginesForCwd(ctx?.cwd);
     const results: { content: { type: "text"; text: string }[]; isError: boolean }[] = [];
-    if (source === "sina" || source === "all") results.push(runPython("sina_news.py", pagesArgs));
-    if (source === "eastmoney" || source === "all") results.push(runPython("eastmoney_news.py", pagesArgs));
+    if (source === "sina" || source === "all") results.push(runPython("sina_news.py", pagesArgs, ed));
+    if (source === "eastmoney" || source === "all") results.push(runPython("eastmoney_news.py", pagesArgs, ed));
     return {
       content: results.flatMap((r) => r.content),
       isError: results.some((r) => r.isError),
@@ -114,10 +129,10 @@ const ruleScreenTool = {
   parameters: Type.Object({
     region: Type.Optional(Type.String({ description: "地区，默认广东" })),
   }),
-  async execute(_toolCallId: string, params: any) {
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
     const args: string[] = [];
     if (params.region) args.push("--region", params.region);
-    return runPython("rule_screen.py", args);
+    return runPython("rule_screen.py", args, resolveEnginesForCwd(ctx?.cwd));
   },
 };
 
@@ -137,9 +152,10 @@ const reviewTool = {
     opportunity_id: Type.Optional(Type.String({ description: "商机ID" })),
     all: Type.Optional(Type.Boolean({ description: "复核全部未复核商机" })),
   }),
-  async execute(_toolCallId: string, params: any) {
-    if (params.all) return runPython("llm_review.py", ["--all"]);
-    if (params.opportunity_id) return runPython("llm_review.py", ["--id", params.opportunity_id]);
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    const ed = resolveEnginesForCwd(ctx?.cwd);
+    if (params.all) return runPython("llm_review.py", ["--all"], ed);
+    if (params.opportunity_id) return runPython("llm_review.py", ["--id", params.opportunity_id], ed);
     return "请提供 opportunity_id 或 all=true";
   },
 };
@@ -152,8 +168,8 @@ const buildQueueTool = {
   promptSnippet: "生成今日商机队列",
   promptGuidelines: ["在复核之后调用，生成最终队列快照"],
   parameters: Type.Object({}),
-  async execute() {
-    return runPython("build_queue.py", []);
+  async execute(_toolCallId?: string, _params?: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    return runPython("build_queue.py", [], resolveEnginesForCwd(ctx?.cwd));
   },
 };
 
@@ -165,8 +181,8 @@ const renderTool = {
   promptSnippet: "渲染商机雷达网页",
   promptGuidelines: ["在 build_daily_queue 之后调用"],
   parameters: Type.Object({}),
-  async execute() {
-    return runPython("render_web.py", []);
+  async execute(_toolCallId?: string, _params?: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    return runPython("render_web.py", [], resolveEnginesForCwd(ctx?.cwd));
   },
 };
 
@@ -180,9 +196,9 @@ const claimTool = {
     opportunity_id: Type.String({ description: "商机ID" }),
     owner: Type.Optional(Type.String({ description: "负责人，默认张经理" })),
   }),
-  async execute(_toolCallId: string, params: any) {
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
     const owner = params.owner || "张经理";
-    return runPython("actions.py", ["--id", params.opportunity_id, "--claim", "--owner", owner]);
+    return runPython("actions.py", ["--id", params.opportunity_id, "--claim", "--owner", owner], resolveEnginesForCwd(ctx?.cwd));
   },
 };
 
@@ -196,10 +212,10 @@ const invalidTool = {
     opportunity_id: Type.String({ description: "商机ID" }),
     owner: Type.Optional(Type.String({ description: "操作人" })),
   }),
-  async execute(_toolCallId: string, params: any) {
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
     const args = ["--id", params.opportunity_id, "--invalid"];
     if (params.owner) args.push("--owner", params.owner);
-    return runPython("actions.py", args);
+    return runPython("actions.py", args, resolveEnginesForCwd(ctx?.cwd));
   },
 };
 
@@ -216,11 +232,14 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
   pi.registerCommand("radar", {
     description: "跑一遍企业外汇需求商机雷达全流程",
     handler: async (_args, ctx) => {
-      ctx.ui.notify(
-        "🛰️ 商机雷达流程启动:\n" +
-        "crawl_cninfo → crawl_news → rule_screen → review_opportunity(all) → build_daily_queue → render_web\n" +
-        "完成后打开 web/index.html 或运行 serve.py 查看",
-        "info"
+      try {
+        ctx.ui.notify("🛰️ 商机雷达流程启动：抓取→初筛→复核→队列→渲染…", "info");
+      } catch { /* RPC 模式可能无 UI，忽略 */ }
+      // 注入一条用户消息，让 Agent 真正执行工具并在聊天里展示全过程
+      pi.sendUserMessage(
+        "请跑一遍企业外汇需求商机雷达全流程：依次调用 crawl_cninfo、crawl_news、" +
+        "rule_screen、review_opportunity(all=true)、build_daily_queue、render_web，" +
+        "最后按 fx-radar-workflow 技能的汇报格式总结今日商机队列。"
       );
     },
   });

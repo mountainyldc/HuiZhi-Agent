@@ -1,0 +1,36 @@
+# 企业外汇需求商机雷达 - 配置
+# 所有 key 不写死，从环境变量读取
+
+region:
+  default: 广东
+  allowlist: engines/region_allowlist.csv
+
+crawl:
+  days_window: 45
+  keywords: ["外汇套保", "远期结售汇", "汇率避险", "外汇衍生品", "套期保值", "汇兑"]
+  max_pages: 3
+  sample_fallback: true
+
+score:
+  # 5 维评分权重（合计 1.0）
+  weights:
+    event_credibility: 0.25
+    capital_scale: 0.20
+    timeliness: 0.20
+    coverage: 0.20
+    info_completeness: 0.15
+
+review:
+  enabled: true
+  provider: openai_compatible
+  base_url: https://api.deepseek.com
+  api_key_env: DEEPSEEK_API_KEY
+  model: deepseek-chat
+  timeout_seconds: 60
+
+web:
+  title: 外汇与国际业务商机雷达
+  output: web/index.html
+
+store:
+  db_path: data/db/fx_radar.db

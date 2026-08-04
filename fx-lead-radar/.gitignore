@@ -1,0 +1,7 @@
+# 生成物与本地数据不入库
+data/db/*.db
+data/db/*.db-*
+web/index.html
+data/queue_snapshots/
+__pycache__/
+*.pyc

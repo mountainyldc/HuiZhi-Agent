@@ -1,0 +1,90 @@
+[
+  {
+    "id": "sample_001",
+    "stock_code": "605499",
+    "stock_name": "东鹏饮料",
+    "title": "东鹏饮料（集团）股份有限公司关于开展外汇衍生品交易的公告",
+    "url": "https://www.cninfo.com.cn/new/disclosure/detail?sample_001",
+    "publish_date": "2026-07-31",
+    "source": "巨潮资讯·公司公告",
+    "region_hint": "深圳",
+    "keywords_hit": ["外汇与套保", "外汇衍生品"]
+  },
+  {
+    "id": "sample_002",
+    "stock_code": "002815",
+    "stock_name": "崇达技术",
+    "title": "关于泰国子公司完成增资、注册资本变更登记暨境外投资的进展公告",
+    "url": "https://www.cninfo.com.cn/new/disclosure/detail?sample_002",
+    "publish_date": "2026-07-28",
+    "source": "巨潮资讯·公司公告",
+    "region_hint": "深圳",
+    "keywords_hit": ["境外投资/子公司"]
+  },
+  {
+    "id": "sample_003",
+    "stock_code": "002902",
+    "stock_name": "铭普光磁",
+    "title": "关于境外子公司变更记账本位币的公告",
+    "url": "https://www.cninfo.com.cn/new/disclosure/detail?sample_003",
+    "publish_date": "2026-07-25",
+    "source": "巨潮资讯·公司公告",
+    "region_hint": "东莞",
+    "keywords_hit": ["境外市场", "币种待核实"]
+  },
+  {
+    "id": "sample_004",
+    "stock_code": "002909",
+    "stock_name": "集泰化工",
+    "title": "关于对外投资暨设立香港及海外子公司的公告",
+    "url": "https://www.cninfo.com.cn/new/disclosure/detail?sample_004",
+    "publish_date": "2026-07-22",
+    "source": "巨潮资讯·公司公告",
+    "region_hint": "广州",
+    "keywords_hit": ["境外投资/子公司"]
+  },
+  {
+    "id": "sample_005",
+    "stock_code": "002955",
+    "stock_name": "鸿合科技",
+    "title": "关于公司及子公司开展外汇衍生品套期保值交易业务的公告",
+    "url": "https://www.cninfo.com.cn/new/disclosure/detail?sample_005",
+    "publish_date": "2026-07-20",
+    "source": "巨潮资讯·公司公告",
+    "region_hint": "深圳",
+    "keywords_hit": ["外汇与套保", "套期保值"]
+  },
+  {
+    "id": "sample_006",
+    "stock_code": "000070",
+    "stock_name": "特发信息",
+    "title": "关于公司控股子公司开展外汇套期保值业务的公告",
+    "url": "https://www.cninfo.com.cn/new/disclosure/detail?sample_006",
+    "publish_date": "2026-07-18",
+    "source": "巨潮资讯·公司公告",
+    "region_hint": "深圳",
+    "keywords_hit": ["外汇与套保", "套期保值"]
+  },
+  {
+    "id": "sample_007",
+    "stock_code": "603043",
+    "stock_name": "广州酒家",
+    "title": "关于开展远期结售汇业务的公告",
+    "url": "https://www.cninfo.com.cn/new/disclosure/detail?sample_007",
+    "publish_date": "2026-08-01",
+    "source": "巨潮资讯·公司公告",
+    "region_hint": "广州",
+    "keywords_hit": ["外汇与套保", "远期结售汇"]
+  },
+  {
+    "id": "sample_008",
+    "stock_code": "002594",
+    "stock_name": "比亚迪",
+    "title": "关于2026年半年度外汇套期保值业务开展情况的公告",
+    "url": "https://www.cninfo.com.cn/new/disclosure/detail?sample_008",
+    "publish_date": "2026-07-30",
+    "source": "巨潮资讯·公司公告",
+    "region_hint": "深圳",
+    "keywords_hit": ["外汇与套保", "套期保值"]
+  }
+]

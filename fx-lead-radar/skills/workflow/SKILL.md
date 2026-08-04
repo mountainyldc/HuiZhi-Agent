@@ -12,12 +12,14 @@ description: 商机雷达全流程编排 - 用户说"跑一遍商机雷达"时�
 
 1. `crawl_cninfo` — 抓取巨潮公告（近45天，外汇/套保关键词）
    - 若返回 source=sample，向用户说明：当前为样例数据兜底（离线/接口异常）
-2. `rule_screen` — 规则初筛（广东企业+外汇与套保+近45天）+ 5 维评分
+2. `crawl_news` — 抓取财经快讯舆情（新浪财经 + 东方财富，软信号）
+   - 无命中时回退样例舆情（source 标注"样例"）
+3. `rule_screen` — 规则初筛（公告硬规则：广东企业+外汇与套保+近45天；舆情软信号）+ 5 维评分
    - 若命中 0 条，向用户说明原因并停止
-3. `review_opportunity` with `all=true` — 大模型复核全部未复核商机
+4. `review_opportunity` with `all=true` — 大模型复核全部未复核商机
    - 若输出跳过（无 Key/失败），说明评分仍为规则分
-4. `build_daily_queue` — 生成今日商机队列
-5. `render_web` — 渲染页面
+5. `build_daily_queue` — 生成今日商机队列
+6. `render_web` — 渲染页面（证据摘要可点击）
 
 ## 汇报格式
 

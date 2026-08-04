@@ -41,6 +41,7 @@ def build_queue(date=None, out=None):
             "rule_hits": o["rule_hits"],
             "publish_date": ann.get("publish_date", ""),
             "source": ann.get("source", ""),
+            "evidence_url": ann.get("url", ""),
             "review": (rev or {}).get("review") if rev else None,
         })
 

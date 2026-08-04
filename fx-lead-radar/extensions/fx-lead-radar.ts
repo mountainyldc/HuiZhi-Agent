@@ -1,8 +1,8 @@
 /**
  * 企业外汇需求商机雷达 - Pi Coding Agent 扩展
  *
- * 为"外汇与国际业务商机雷达"注册 7 个工具，覆盖完整链路:
- *   抓取 -> 规则初筛评分 -> 大模型复核 -> 生成队列 -> 渲染页面 -> 认领/标记无效
+ * 为"外汇与国际业务商机雷达"注册 8 个工具，覆盖完整链路:
+ *   多源抓取(公告+舆情) -> 规则初筛评分 -> 大模型复核 -> 生成队列 -> 渲染页面 -> 认领/标记无效
  *
  * 安装方式:
  *   1. 复制到 ~/.pi/agent/extensions/fx-lead-radar.ts
@@ -68,6 +68,34 @@ const crawlTool = {
     if (params.days) args.push("--days", String(params.days));
     if (params.force_sample) args.push("--force-sample");
     return runPython("crawl_cninfo.py", args);
+  },
+};
+
+const crawlNewsTool = {
+  name: "crawl_news",
+  label: "抓取财经快讯舆情",
+  description:
+    "抓取财经媒体 7x24 快讯（新浪财经 / 东方财富）生成舆情软信号，写入 data/crawled/。" +
+    "实时命中「广东企业 + 外汇/汇率/出口/海外」关键词即产出；无命中时回退样例（source 标注样例）。",
+  promptSnippet: "抓取财经快讯生成舆情软信号",
+  promptGuidelines: [
+    "在 crawl_cninfo 之后调用，为商机增加舆情软信号（可提升队列数量）",
+    "source=sina 为新浪财经，source=eastmoney 为东方财富，默认全部",
+  ],
+  parameters: Type.Object({
+    source: Type.Optional(Type.String({ description: "sina / eastmoney / all（默认 all）" })),
+    pages: Type.Optional(Type.Integer({ description: "抓取页数，默认新浪10页/东财5页" })),
+  }),
+  async execute(_toolCallId: string, params: any) {
+    const source = params.source || "all";
+    const pagesArgs = params.pages ? ["--pages", String(params.pages)] : [];
+    const results: { content: { type: "text"; text: string }[]; isError: boolean }[] = [];
+    if (source === "sina" || source === "all") results.push(runPython("sina_news.py", pagesArgs));
+    if (source === "eastmoney" || source === "all") results.push(runPython("eastmoney_news.py", pagesArgs));
+    return {
+      content: results.flatMap((r) => r.content),
+      isError: results.some((r) => r.isError),
+    };
   },
 };
 
@@ -177,6 +205,7 @@ const invalidTool = {
 
 export default function fxLeadRadar(pi: ExtensionAPI) {
   pi.registerTool(crawlTool);
+  pi.registerTool(crawlNewsTool);
   pi.registerTool(ruleScreenTool);
   pi.registerTool(reviewTool);
   pi.registerTool(buildQueueTool);
@@ -189,7 +218,7 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
     handler: async (_args, ctx) => {
       ctx.ui.notify(
         "🛰️ 商机雷达流程启动:\n" +
-        "crawl_cninfo → rule_screen → review_opportunity(all) → build_daily_queue → render_web\n" +
+        "crawl_cninfo → crawl_news → rule_screen → review_opportunity(all) → build_daily_queue → render_web\n" +
         "完成后打开 web/index.html 或运行 serve.py 查看",
         "info"
       );
@@ -198,8 +227,8 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
 
   pi.on("session_start", async (_event, ctx) => {
     ctx.ui.notify(
-      "🛰️ 企业外汇需求商机雷达已就绪 | 7 tools\n" +
-      "  流程: crawl_cninfo / rule_screen / review_opportunity / build_daily_queue / render_web\n" +
+      "🛰️ 企业外汇需求商机雷达已就绪 | 8 tools\n" +
+      "  流程: crawl_cninfo / crawl_news(新浪+东财) / rule_screen / review_opportunity / build_daily_queue / render_web\n" +
       "  动作: claim_opportunity / mark_invalid\n" +
       "  命令: /radar",
       "info"

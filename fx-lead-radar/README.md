@@ -12,12 +12,14 @@ pip install requests openai pyyaml
 # 2. 配置环境变量（复核用，缺省自动跳过）
 set DEEPSEEK_API_KEY=sk-xxx
 
-# 3. 跑全流程（等价于让 Pi 依次调用 5 个工具）
-python engines/crawl_cninfo.py    # 抓取公告（失败回退样例）
-python engines/rule_screen.py --reset   # 规则初筛+5维评分（--reset 清空重建）
-python engines/llm_review.py --all      # DeepSeek 复核
-python engines/build_queue.py           # 生成今日队列
-python engines/render_web.py            # 渲染 web/index.html
+# 3. 跑全流程（等价于让 Pi 依次调用 8 个工具）
+python engines/crawl_cninfo.py          # ① 巨潮公告（失败回退样例）
+python engines/sina_news.py --pages 10  # ② 新浪财经 7x24 快讯（舆情软信号）
+python engines/eastmoney_news.py        # ③ 东方财富 7x24 快讯（舆情软信号）
+python engines/rule_screen.py --reset   # ④ 规则初筛+5维评分（--reset 清空重建）
+python engines/llm_review.py --all      # ⑤ DeepSeek 复核
+python engines/build_queue.py           # ⑥ 生成今日队列（含 evidence_url 证据链接）
+python engines/render_web.py            # ⑦ 渲染 web/index.html（证据摘要可点击）
 
 # 4. 查看
 # 方式A（推荐演示）：启动服务，认领/标记无效可持久化
@@ -48,15 +50,17 @@ extensions/fx-lead-radar.ts   # Pi 扩展：7 个工具
 skills/fx-lead-radar/SKILL.md # 业务知识 + 工具用法
 skills/workflow/SKILL.md      # 全流程编排指令
 engines/
-  crawl_cninfo.py   # 巨潮公告抓取（关键词+45天，失败回退样例）
-  rule_screen.py    # 规则初筛 + 5维评分（广东/套保/45天）
-  llm_review.py     # DeepSeek 复核（证据摘要/已知未知/沟通问题/复核分）
-  build_queue.py    # 今日商机队列快照
-  render_web.py     # 静态页面渲染（复刻导师界面）
-  serve.py          # 轻量演示服务（认领/标记无效持久化）
-  actions.py        # 认领/推进/标记无效 CLI
-  store.py          # SQLite 存储层（生命周期状态机）
-  common.py         # 配置与路径
+  crawl_cninfo.py     # ① 巨潮公告抓取（关键词+45天，失败回退样例）
+  sina_news.py        # ② 新浪财经 7x24 快讯 -> 舆情软信号（含 docurl 原文）
+  eastmoney_news.py   # ③ 东方财富 7x24 快讯 -> 舆情软信号（含原文链接）
+  rule_screen.py      # ④ 规则初筛 + 5维评分（多源：公告硬规则/舆情软规则）
+  llm_review.py       # ⑤ DeepSeek 复核（证据摘要/已知未知/沟通问题/复核分）
+  build_queue.py      # ⑥ 今日商机队列快照（含 evidence_url）
+  render_web.py       # ⑦ 静态页面渲染（证据摘要可点击，无原文时搜索兜底）
+  serve.py            # ⑧ 轻量演示服务（认领/标记无效持久化）
+  actions.py          # 认领/推进/标记无效 CLI
+  store.py            # SQLite 存储层（生命周期状态机）
+  common.py           # 配置与路径
 data/               # 抓取结果/快照/样例（db 不入库）
 config.yaml         # 地区/关键词/窗口/评分权重/LLM 配置
 ```

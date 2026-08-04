@@ -68,6 +68,10 @@ TEMPLATE = r"""<!DOCTYPE html>
   .btn.claim { background:#1a7f4b; color:#fff; }
   .btn.invalid { background:#fff; border:1px solid #c9ccd4; color:#555; }
   .foot { font-size:12px; color:var(--muted); margin-top:12px; }
+  .evlink { color:var(--red); text-decoration:none; border-bottom:1px dashed #f0a0ab; }
+  .evlink:hover { text-decoration:underline; }
+  .evbtn { display:inline-block; background:var(--red); color:#fff; font-size:12px; padding:5px 12px; border-radius:4px; text-decoration:none; }
+  .evbtn:hover { opacity:.88; }
   .empty { padding:40px; text-align:center; color:var(--muted); }
   #toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#333; color:#fff; padding:8px 16px; border-radius:4px; font-size:13px; display:none; }
 </style>
@@ -117,6 +121,18 @@ function scoreBars(b){
       <div class="bar"><i style="width:${b[k]}%"></i></div><span class="bv">${b[k]}</span></div>`).join("");
 }
 
+function evHref(it, evidence){
+  if(it.evidence_url) return it.evidence_url;
+  const q = encodeURIComponent((it.company_name||"")+" "+(evidence.doc_title||it.title||""));
+  return "https://www.baidu.com/s?wd="+q;
+}
+function evDocLink(it, evidence){
+  const title = evidence.doc_title || it.title || "（无标题）";
+  return `<a class="evlink" href="${evHref(it,evidence)}" target="_blank" rel="noopener">${esc(title)}</a>`;
+}
+function evLabel(it){
+  return it.evidence_url ? "查看原文 ↗" : "搜索相关报道 ↗";
+}
 function showDetail(id){
   const it = items.find(x=>x.opportunity_id===id); if(!it) return;
   renderList(id);
@@ -137,9 +153,11 @@ function showDetail(id){
     <div class="card"><h3>触发事件</h3><div style="font-size:13px">${esc(it.trigger_event)}</div>
       <div style="font-size:12px;color:#1a7f4b;margin-top:6px">规则命中：${(it.rule_hits||[]).join(" + ")}</div></div>
     <div class="card"><h3>证据摘要</h3>
-      <div class="kv"><span><b>文档：</b>${esc(evidence.doc_title||it.title)}</span>
-      <span><b>来源：</b>${esc(evidence.source||it.source||"巨潮资讯")}</span>
-      <span><b>时间：</b>${esc(evidence.publish_time||it.publish_date)}</span></div></div>
+      <div class="kv"><span><b>文档：</b>${evDocLink(it,evidence)}</span>
+      <span><b>来源：</b>${esc(evidence.source||it.source||"")}</span>
+      <span><b>时间：</b>${esc(evidence.publish_time||it.publish_date||"")}</span></div>
+      <div style="margin-top:12px"><a class="evbtn" href="${evHref(it,evidence)}" target="_blank" rel="noopener">${evLabel(it,evidence)}</a>
+      <span style="font-size:11px;color:var(--muted);margin-left:8px">${it.evidence_url?"点击打开公告/快讯原文":"未收录直接原文，点击搜索相关报道"}</span></div></div>
     <div class="card"><h3>已知事实 <span class="badge">AI提取</span></h3>
       <ul class="facts">${(rev.known_facts||[]).map(f=>`<li>${esc(f)}</li>`).join("")||"<li>（暂无）</li>"}</ul></div>
     <div class="card"><h3>未知 / 待核实</h3>

@@ -14,9 +14,23 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { execFileSync } from "child_process";
+import { existsSync } from "fs";
+import { homedir } from "os";
 import { join } from "path";
 
-const ENGINES_DIR = join(__dirname, "..", "engines");
+function resolveEnginesDir(): string {
+  const candidates = [
+    join(__dirname, "..", "engines"),
+    join(homedir(), ".pi", "agent", "engines"),
+    process.env.FX_RADAR_HOME ? join(process.env.FX_RADAR_HOME, "engines") : "",
+  ].filter(Boolean);
+  for (const c of candidates) {
+    if (existsSync(c)) return c;
+  }
+  return candidates[0];
+}
+
+const ENGINES_DIR = resolveEnginesDir();
 
 function runPython(script: string, args: string[]): string {
   try {

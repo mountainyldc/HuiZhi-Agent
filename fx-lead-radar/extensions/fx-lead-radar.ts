@@ -32,18 +32,18 @@ function resolveEnginesDir(): string {
 
 const ENGINES_DIR = resolveEnginesDir();
 
-function runPython(script: string, args: string[]): string {
+function runPython(script: string, args: string[]): { content: { type: "text"; text: string }[]; isError: boolean } {
   try {
     const out = execFileSync(
       "python",
       [join(ENGINES_DIR, script), ...args],
       { encoding: "utf-8", timeout: 180000 }
     );
-    return out.trim();
+    return { content: [{ type: "text", text: out.trim() }], isError: false };
   } catch (e: any) {
     const stderr = e.stderr ? `\n${e.stderr.toString()}` : "";
     const stdout = e.stdout ? `\n${e.stdout.toString()}` : "";
-    return `执行失败: ${e.message}${stdout}${stderr}`;
+    return { content: [{ type: "text", text: `执行失败: ${e.message}${stdout}${stderr}` }], isError: true };
   }
 }
 

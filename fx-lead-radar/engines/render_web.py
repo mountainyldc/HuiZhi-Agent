@@ -40,7 +40,7 @@ TEMPLATE = r"""<!DOCTYPE html>
   header {
     display: flex; align-items: center; gap: 16px;
     padding: 0 24px; height: 58px;
-    background: var(--card); border-bottom: 2px solid var(--red);
+    background: var(--card); border-bottom: 1px solid var(--line);
   }
   .brand { display: flex; align-items: center; gap: 12px; }
   .icbc {
@@ -55,10 +55,10 @@ TEMPLATE = r"""<!DOCTYPE html>
   /* KPI 卡片 */
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding: 18px 24px 0; }
   .kpi {
-    background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--red);
+    background: var(--card); border: 1px solid var(--line);
     padding: 14px 18px; display: flex; align-items: baseline; gap: 10px;
   }
-  .kpi .num { font-size: 26px; font-weight: 800; color: var(--red); font-variant-numeric: tabular-nums; }
+  .kpi .num { font-size: 26px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
   .kpi .num.plain { color: var(--ink); }
   .kpi .lab { font-size: 13px; color: var(--ink-2); }
   /* 主区 */
@@ -69,7 +69,7 @@ TEMPLATE = r"""<!DOCTYPE html>
   }
   .qhead { padding: 13px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; }
   .qhead h2 { font-size: 15px; font-weight: 700; }
-  .qhead h2::before { content: ""; display: inline-block; width: 4px; height: 15px; background: var(--red); margin-right: 8px; vertical-align: -2px; }
+  .qhead h2::before { content: ""; display: inline-block; width: 4px; height: 15px; background: var(--ink); margin-right: 8px; vertical-align: -2px; }
   .qhead p { margin-left: auto; font-size: 12px; color: var(--ink-3); }
   #qlist { flex: 1; overflow-y: auto; padding: 8px 8px 18px; }
   .qitem {
@@ -77,13 +77,13 @@ TEMPLATE = r"""<!DOCTYPE html>
     border-left: 3px solid transparent;
   }
   .qitem:hover { background: #FAFBFC; }
-  .qitem.active { background: #FDF3F4; border-left-color: var(--red); }
+  .qitem.active { background: #F5F6F8; border-left-color: var(--ink); }
   .row1 { display: flex; align-items: center; gap: 8px; }
   .rank { font-size: 12px; color: var(--ink-3); width: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .rank.top { color: var(--red); }
+  .rank.top { color: var(--ink); }
   .company { font-weight: 700; font-size: 15px; }
   .city { font-size: 12px; color: var(--ink-3); }
-  .score { margin-left: auto; font-weight: 800; color: var(--red); font-size: 16px; }
+  .score { margin-left: auto; font-weight: 800; color: var(--ink); font-size: 16px; }
   .score small { font-size: 11px; color: var(--ink-3); font-weight: 400; }
   .qtitle {
     font-size: 12.5px; color: var(--ink-2); margin: 6px 0; line-height: 1.5;
@@ -91,52 +91,52 @@ TEMPLATE = r"""<!DOCTYPE html>
   }
   .tags { display: flex; gap: 6px; flex-wrap: wrap; }
   .tag { font-size: 11px; padding: 2px 8px; background: #F0F2F5; color: var(--ink-2); border-radius: 2px; }
-  .tag.t1 { background: #FDEBED; color: var(--red); }
+  .tag.t1 { background: #F0F2F5; color: var(--ink-2); }
   .src { font-size: 11px; color: var(--ink-3); margin-left: auto; white-space: nowrap; }
   /* 详情 */
   #detail { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 18px; }
   .card { background: var(--card); border: 1px solid var(--line); padding: 18px 20px; }
   .card h3 { font-size: 13px; color: var(--ink-2); font-weight: 700; margin-bottom: 10px; }
-  .card h3::before { content: ""; display: inline-block; width: 3px; height: 13px; background: var(--red); margin-right: 8px; vertical-align: -1px; }
+  .card h3::before { content: ""; display: inline-block; width: 3px; height: 13px; background: var(--ink); margin-right: 8px; vertical-align: -1px; }
   .hero { display: flex; justify-content: space-between; align-items: flex-start; }
   .name { font-size: 22px; font-weight: 800; }
   .sub { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
   .gscore { text-align: right; }
-  .gscore .big { font-size: 34px; font-weight: 800; color: var(--red); line-height: 1; }
+  .gscore .big { font-size: 34px; font-weight: 800; color: var(--ink); line-height: 1; }
   .gscore .lbl { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
   .gbar { width: 150px; height: 4px; background: #EEF0F3; margin-top: 8px; margin-left: auto; }
-  .gbar i { display: block; height: 100%; background: var(--red); }
+  .gbar i { display: block; height: 100%; background: var(--ink); }
   .life { display: flex; gap: 8px; margin-top: 14px; }
   .pill { font-size: 12px; padding: 3px 10px; color: var(--ink-3); background: #F0F2F5; border-radius: 2px; }
-  .pill.on.new { color: var(--red); background: #FDEBED; }
-  .pill.on.verifying { color: var(--amber); background: #FBF1E3; }
-  .pill.on.contacted { color: var(--green); background: #E7F5EE; }
+  .pill.on.new { color: var(--ink); background: #EEF0F3; font-weight: 700; }
+  .pill.on.verifying { color: var(--ink); background: #EEF0F3; font-weight: 700; }
+  .pill.on.contacted { color: var(--ink); background: #EEF0F3; font-weight: 700; }
   .pill.on.invalid { color: var(--ink-3); background: #EEF0F3; }
   .trigger { font-size: 13.5px; line-height: 1.7; }
-  .rule { display: inline-block; font-size: 11px; color: var(--red); background: #FDEBED; padding: 2px 8px; margin-top: 8px; border-radius: 2px; }
+  .rule { display: inline-block; font-size: 11px; color: var(--ink-2); background: #F0F2F5; padding: 2px 8px; margin-top: 8px; border-radius: 2px; }
   .kv { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 13px; color: var(--ink-2); margin-bottom: 12px; }
   .kv span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .kv b { color: var(--ink); font-weight: 600; }
-  .evlink { color: var(--red); text-decoration: none; }
+  .evlink { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink-3); }
   .evlink:hover { text-decoration: underline; }
   .evrow { display: flex; align-items: center; gap: 12px; }
   .evbtn {
-    display: inline-block; border: 1px solid var(--red); color: var(--red);
+    display: inline-block; border: 1px solid var(--ink); color: var(--ink);
     padding: 7px 18px; font-size: 13px; font-weight: 700; text-decoration: none;
   }
-  .evbtn:hover { background: #FDEBED; }
+  .evbtn:hover { background: #F0F2F5; }
   .evbtn.alt { border-color: var(--ink-3); color: var(--ink-2); }
   .evnote { font-size: 12px; color: var(--ink-3); }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .two .kv { grid-template-columns: 1fr; }
   .factlist { list-style: none; }
   .factlist li { font-size: 13px; line-height: 1.7; padding-left: 16px; position: relative; color: var(--ink-2); }
-  .factlist.known li::before { content: "●"; position: absolute; left: 0; font-size: 8px; color: var(--green); top: 7px; }
-  .factlist.unknown li::before { content: "○"; position: absolute; left: 0; font-size: 10px; color: var(--amber); top: 5px; }
+  .factlist.known li::before { content: "●"; position: absolute; left: 0; font-size: 8px; color: var(--ink-3); top: 7px; }
+  .factlist.unknown li::before { content: "○"; position: absolute; left: 0; font-size: 10px; color: var(--ink-3); top: 5px; }
   .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
   .bar-row .bk { width: 88px; font-size: 12.5px; color: var(--ink-2); }
   .bar { flex: 1; height: 6px; background: #EEF0F3; }
-  .bar i { display: block; height: 100%; background: var(--red); }
+  .bar i { display: block; height: 100%; background: var(--ink); }
   .bar-row .bv { width: 32px; text-align: right; font-size: 12.5px; font-weight: 700; color: var(--ink); }
   .qlist { padding-left: 18px; }
   .qlist li { font-size: 13px; line-height: 1.8; color: var(--ink-2); }
@@ -145,9 +145,9 @@ TEMPLATE = r"""<!DOCTYPE html>
     border: 1px solid var(--line); background: var(--card); color: var(--ink-2);
     padding: 9px 22px; font-size: 13px; font-weight: 700; cursor: pointer;
   }
-  .btn.claim { background: var(--red); border-color: var(--red); color: #fff; }
-  .btn.claim:hover { background: var(--red-dark); }
-  .btn.invalid:hover { border-color: var(--red); color: var(--red); }
+  .btn.claim { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .btn.claim:hover { background: #3A424E; }
+  .btn.invalid:hover { border-color: var(--ink); color: var(--ink); }
   .foot { font-size: 12px; color: var(--ink-3); margin-top: 12px; }
   footer {
     display: flex; gap: 22px; padding: 9px 24px; font-size: 12px; color: var(--ink-3);
@@ -297,7 +297,7 @@ function showDetail(id){
         <ul class="factlist unknown">${(rev.unknown_facts||[]).map(f=>`<li>${esc(f)}</li>`).join("")||"<li>（暂无）</li>"}</ul></div>
     </div>
 
-    <div class="card"><h3>商机评分 ${rev.reviewed_score?`<span style="font-size:12px;color:var(--red)">· 大模型复核 ${rev.reviewed_score} 分</span>`:`<span style="font-size:12px;color:var(--ink-3)">· 待大模型复核</span>`}</h3>
+    <div class="card"><h3>商机评分 ${rev.reviewed_score?`<span style="font-size:12px;color:var(--ink-2)">· 大模型复核 ${rev.reviewed_score} 分</span>`:`<span style="font-size:12px;color:var(--ink-3)">· 待大模型复核</span>`}</h3>
       ${scoreBars(it.score_breakdown)}
       <div style="font-size:12px;color:var(--ink-3);margin-top:8px">${esc(rev.review_note||"评分由规则引擎按 5 维加权计算")}</div>
     </div>
@@ -350,6 +350,7 @@ if(items.length) showDetail(items[0].opportunity_id);
 </script>
 </body>
 </html>"""
+
 
 
 

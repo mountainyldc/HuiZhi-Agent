@@ -15,6 +15,7 @@ import json
 import os
 import re
 import sys
+import time
 
 import requests
 
@@ -36,7 +37,19 @@ def _clean_title(title):
     return html.unescape(title).strip()
 
 
-def _query_page(keyword, se_date, page_num, page_size):
+def _query_page(keyword, se_date, page_num, page_size, retries=3):
+    last_exc = None
+    for attempt in range(1, retries + 1):
+        try:
+            return _query_page_once(keyword, se_date, page_num, page_size)
+        except Exception as exc:
+            last_exc = exc
+            print(f"[warn] 查询失败(第{attempt}次): {exc}", file=sys.stderr)
+            time.sleep(2 * attempt)
+    raise last_exc
+
+
+def _query_page_once(keyword, se_date, page_num, page_size):
     data = {
         "pageNum": str(page_num), "pageSize": str(page_size),
         "column": "szse", "tabName": "fulltext", "plate": "", "stock": "",

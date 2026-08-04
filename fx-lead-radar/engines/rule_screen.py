@@ -121,8 +121,10 @@ def rule_screen(input_path=None, region=None):
         input_path = os.path.join(crawled_dir, files[-1])
     with open(input_path, encoding="utf-8") as f:
         anns = json.load(f)
+    store.upsert_announcements(anns)  # 公告入库，供队列/页面联查
 
     created = []
+    best_by_code = {}
     for ann in anns:
         code = ann.get("stock_code", "")
         if code not in allowlist:
@@ -139,6 +141,15 @@ def rule_screen(input_path=None, region=None):
             continue  # 规则3：不在近45天窗口
 
         total, breakdown = score_opportunity(ann, cfg, city, today)
+        # 同一公司只保留最高分商机（对齐界面：一行一公司）
+        prev = best_by_code.get(code)
+        if prev is not None:
+            if prev["score"] >= total:
+                continue
+            if prev["lifecycle"] == "new" and not prev.get("owner"):
+                store.delete_opportunity(prev["id"])  # 删除低分新商机
+            else:
+                continue  # 低分商机已被认领，保留旧的不动
         opp_id = "opp_" + hashlib.md5(ann["id"].encode("utf-8")).hexdigest()[:8]
         opp = {
             "id": opp_id,
@@ -155,7 +166,8 @@ def rule_screen(input_path=None, region=None):
             "created_date": today.isoformat(),
         }
         store.insert_opportunity(opp)
-        created.append(opp)
+        best_by_code[code] = opp
+        created = list(best_by_code.values())
 
     store.init_db()
     return created
@@ -165,10 +177,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--input", default=None)
     ap.add_argument("--region", default=None)
+    ap.add_argument("--reset", action="store_true", help="清空已有商机/复核后重建")
     args = ap.parse_args()
     store.init_db()
+    if args.reset:
+        store.clear_opportunities()
+        print("[info] 已清空商机与复核记录")
     opps = rule_screen(args.input, args.region)
-    print(f"[result] 命中 {len(opps)} 条商机")
+    print(f"[result] 命中 {len(opps)} 条商机（已按公司去重）")
     for o in opps:
         print(f"  - {o['company_name']}({o['city']}) score={o['score']} "
               f"tags={o['tags']} date={o.get('created_date')}")

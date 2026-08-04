@@ -153,6 +153,24 @@ def set_lifecycle(opp_id, lifecycle, owner=None):
 
 # ---------- 复核 ----------
 
+def delete_opportunity(opp_id):
+    """删除指定商机及其复核记录。"""
+    conn = _conn()
+    conn.execute("DELETE FROM reviews WHERE opportunity_id=?", (opp_id,))
+    conn.execute("DELETE FROM opportunities WHERE id=?", (opp_id,))
+    conn.commit()
+    conn.close()
+
+
+def clear_opportunities():
+    """清空商机与复核记录（切换数据源时使用）。"""
+    conn = _conn()
+    conn.execute("DELETE FROM reviews")
+    conn.execute("DELETE FROM opportunities")
+    conn.commit()
+    conn.close()
+
+
 def save_review(opp_id, review):
     import datetime
     conn = _conn()

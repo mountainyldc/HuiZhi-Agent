@@ -1,9 +1,9 @@
 """商机动作 CLI：认领 / 推进 / 标记无效（供 Pi 工具调用）。
 
 用法:
-  python actions.py --id opp_x --claim --owner 张经理
-  python actions.py --id opp_x --contact --owner 张经理
-  python actions.py --id opp_x --invalid --owner 张经理
+  python actions.py --id opp_x --claim --owner 叶霖德
+  python actions.py --id opp_x --contact --owner 叶霖德
+  python actions.py --id opp_x --invalid --owner 叶霖德
 """
 import argparse
 

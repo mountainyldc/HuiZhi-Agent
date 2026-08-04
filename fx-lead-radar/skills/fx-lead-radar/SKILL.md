@@ -57,7 +57,7 @@ new(新发现) → verifying(待核实) → contacted(已联系)；另有 invali
 由队列快照渲染静态页面 `web/index.html`。
 
 ### claim_opportunity
-认领商机：`opportunity_id` + `owner`(默认张经理)，状态 → 待核实。
+认领商机：`opportunity_id` + `owner`(默认叶霖德)，状态 → 待核实。
 
 ### mark_invalid
 标记商机无效：`opportunity_id`，状态 → invalid，移出队列。

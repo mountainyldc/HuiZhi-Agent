@@ -254,10 +254,10 @@ const claimTool = {
   promptGuidelines: ["认领后商机进入待核实阶段"],
   parameters: Type.Object({
     opportunity_id: Type.String({ description: "商机ID" }),
-    owner: Type.Optional(Type.String({ description: "负责人，默认张经理" })),
+    owner: Type.Optional(Type.String({ description: "负责人，默认叶霖德" })),
   }),
   async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
-    const owner = params.owner || "张经理";
+    const owner = params.owner || "叶霖德";
     return runPython("actions.py", ["--id", params.opportunity_id, "--claim", "--owner", owner], resolveEnginesForCwd(ctx?.cwd));
   },
 };

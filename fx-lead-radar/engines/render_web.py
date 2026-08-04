@@ -179,7 +179,7 @@ TEMPLATE = r"""<!DOCTYPE html>
   <div class="meta">
     <span>地区 <b>广东</b></span>
     <span id="hdrDate"></span>
-    <span>用户 <b>张经理</b></span>
+    <span>用户 <b>叶霖德</b></span>
   </div>
 </header>
 
@@ -315,14 +315,14 @@ function showDetail(id){
 async function action(id, act){
   const it = items.find(x=>x.opportunity_id===id);
   try{
-    const r = await fetch("/action",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({opportunity_id:id,action:act,owner:"张经理"})});
+    const r = await fetch("/action",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({opportunity_id:id,action:act,owner:"叶霖德"})});
     if(!r.ok) throw new Error("http "+r.status);
     const j = await r.json();
     toast(j.message||"已更新");
     location.reload();
   }catch(e){
     it.lifecycle = act==="claim" ? "verifying" : "invalid";
-    if(act==="claim") it.owner = "张经理";
+    if(act==="claim") it.owner = "叶霖德";
     toast("静态模式：状态仅本次会话生效（启动 serve.py 可持久化）");
     showDetail(id);
   }
@@ -341,7 +341,8 @@ function renderKPIs(){
   document.getElementById("kVerifying").textContent = items.filter(i=>i.lifecycle==="verifying").length;
   document.getElementById("kClaimed").textContent = items.filter(i=>i.owner).length;
 }
-document.getElementById("hdrDate").textContent = "日期 " + (items[0] && items[0].publish_date ? items[0].publish_date : "");
+const _d = new Date();
+document.getElementById("hdrDate").textContent = "日期 " + _d.getFullYear() + "-" + String(_d.getMonth()+1).padStart(2,"0") + "-" + String(_d.getDate()).padStart(2,"0");
 document.getElementById("genTime").textContent = "生成时间 " + new Date().toLocaleString("zh-CN");
 renderKPIs();
 renderList(null);

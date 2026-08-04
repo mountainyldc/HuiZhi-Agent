@@ -6,9 +6,9 @@ region:
   allowlist: engines/region_allowlist.csv
 
 crawl:
-  days_window: 45
-  keywords: ["外汇套保", "远期结售汇", "汇率避险", "外汇衍生品", "套期保值", "汇兑"]
-  max_pages: 3
+  days_window: 180
+  keywords: ["外汇套保", "远期结售汇", "汇率避险", "外汇衍生品", "套期保值", "汇兑", "结售汇", "汇率风险", "外汇业务", "跨境资金", "远期外汇", "外币"]
+  max_pages: 5
   sample_fallback: true
 
 score:

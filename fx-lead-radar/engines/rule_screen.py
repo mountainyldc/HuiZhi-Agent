@@ -137,7 +137,7 @@ def rule_screen(input_path=None, region=None):
 
     store.upsert_announcements(anns)  # 公告/舆情入库，供队列与页面联查
 
-    best_by_code = {}
+    created = []
     for ann in anns:
         source = ann.get("source", "")
         is_news = NEWS_SOURCE_MARK in source
@@ -169,19 +169,10 @@ def rule_screen(input_path=None, region=None):
 
         opp = _build_opportunity(ann, stock_name, code, city, tags, rule_hits,
                                  trigger, total, breakdown, today)
-        # 同一公司只保留最高分商机
-        prev = best_by_code.get(code)
-        if prev is not None:
-            if prev["score"] >= total:
-                continue
-            if prev["lifecycle"] == "new" and not prev.get("owner"):
-                store.delete_opportunity(prev["id"])
-            else:
-                continue
         store.insert_opportunity(opp)
-        best_by_code[code] = opp
+        created.append(opp)
 
-    return list(best_by_code.values())
+    return created
 
 
 def main():
@@ -195,7 +186,7 @@ def main():
         store.clear_opportunities()
         print("[info] 已清空商机与复核记录")
     opps = rule_screen(args.input, args.region)
-    print(f"[result] 命中 {len(opps)} 条商机（已按公司去重）")
+    print(f"[result] 命中 {len(opps)} 条商机（同公司多公告均保留）")
     for o in opps:
         print(f"  - {o['company_name']}({o['city']}) score={o['score']} "
               f"tags={o['tags']} rule={o['rule_hits']}")

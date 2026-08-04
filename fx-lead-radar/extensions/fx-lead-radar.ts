@@ -13,7 +13,8 @@
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { execFileSync } from "child_process";
+import { execFileSync, spawn } from "child_process";
+import { get as httpGet } from "http";
 import { existsSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
@@ -186,6 +187,65 @@ const renderTool = {
   },
 };
 
+const startServerTool = {
+  name: "start_server",
+  label: "启动本地预览服务",
+  description:
+    "启动商机雷达本地 HTTP 预览服务（serve.py），返回可直接点击的访问地址。" +
+    "自动跳过被占用端口；若已有新版页面服务在运行则直接返回现有地址。",
+  promptSnippet: "启动本地预览服务",
+  promptGuidelines: ["在 render_web 之后调用，把可点击的网址交给用户"],
+  parameters: Type.Object({}),
+  async execute(_toolCallId?: string, _params?: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    const ed = resolveEnginesForCwd(ctx?.cwd);
+    const probe = (port: number, timeoutMs: number): Promise<{ alive: boolean; text: string }> =>
+      new Promise((resolve) => {
+        const req = httpGet({ host: "127.0.0.1", port, path: "/", timeout: timeoutMs }, (res) => {
+          let body = "";
+          res.setEncoding("utf8");
+          res.on("data", (c) => { body += c; });
+          res.on("end", () => resolve({ alive: res.statusCode === 200, text: body }));
+        });
+        req.on("timeout", () => { req.destroy(); resolve({ alive: false, text: "" }); });
+        req.on("error", () => resolve({ alive: false, text: "" }));
+      });
+    const isCurrentPage = async (base: string) => {
+      const port = Number(new URL(base).port) || 80;
+      const r = await probe(port, 1500);
+      return r.alive && (r.text.includes("ICBC") || r.text.includes("中国工商银行"));
+    };
+    const isFree = async (port: number) => !(await probe(port, 800)).alive;
+    // 1) 已有新版页面服务在跑，直接复用
+    for (let off = 0; off <= 9; off++) {
+      const base = `http://127.0.0.1:${8000 + off}`;
+      if (await isCurrentPage(base)) {
+        return { content: [{ type: "text", text: `预览服务已在运行：${base}\n浏览器打开即可查看并保存商机雷达页面。` }], isError: false };
+      }
+    }
+    // 2) 依次找空闲端口并后台启动
+    for (let off = 0; off <= 9; off++) {
+      const port = 8000 + off;
+      if (!(await isFree(port))) continue;
+      const child = spawn("python", [join(ed, "serve.py"), "--port", String(port)], {
+        cwd: ed,
+        detached: true,
+        stdio: "ignore",
+        windowsHide: true,
+      });
+      child.unref();
+      const base = `http://127.0.0.1:${port}`;
+      for (let i = 0; i < 25; i++) {
+        await new Promise((r) => setTimeout(r, 400));
+        if (await isCurrentPage(base)) {
+          return { content: [{ type: "text", text: `预览服务已启动：${base}\n浏览器打开即可查看并保存商机雷达页面。` }], isError: false };
+        }
+      }
+      return { content: [{ type: "text", text: `服务启动中，请稍后访问 ${base}（若仍打不开：cd fx-lead-radar && python engines/serve.py）` }], isError: true };
+    }
+    return { content: [{ type: "text", text: "8000-8009 端口均不可用，请手动运行 python engines/serve.py 后访问" }], isError: true };
+  },
+};
+
 const claimTool = {
   name: "claim_opportunity",
   label: "认领商机",
@@ -228,6 +288,7 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
   pi.registerTool(renderTool);
   pi.registerTool(claimTool);
   pi.registerTool(invalidTool);
+  pi.registerTool(startServerTool);
 
   pi.registerCommand("radar", {
     description: "跑一遍企业外汇需求商机雷达全流程",
@@ -238,16 +299,16 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
       // 注入一条用户消息，让 Agent 真正执行工具并在聊天里展示全过程
       pi.sendUserMessage(
         "请跑一遍企业外汇需求商机雷达全流程：依次调用 crawl_cninfo、crawl_news、" +
-        "rule_screen、review_opportunity(all=true)、build_daily_queue、render_web，" +
-        "最后按 fx-radar-workflow 技能的汇报格式总结今日商机队列。"
+        "rule_screen、review_opportunity(all=true)、build_daily_queue、render_web、start_server，" +
+        "最后按 fx-radar-workflow 技能的汇报格式总结今日商机队列（附可点击的预览地址）。"
       );
     },
   });
 
   pi.on("session_start", async (_event, ctx) => {
     ctx.ui.notify(
-      "🛰️ 企业外汇需求商机雷达已就绪 | 8 tools\n" +
-      "  流程: crawl_cninfo / crawl_news(新浪+东财) / rule_screen / review_opportunity / build_daily_queue / render_web\n" +
+      "🛰️ 企业外汇需求商机雷达已就绪 | 9 tools\n" +
+      "  流程: crawl_cninfo / crawl_news(新浪+东财) / rule_screen / review_opportunity / build_daily_queue / render_web / start_server\n" +
       "  动作: claim_opportunity / mark_invalid\n" +
       "  命令: /radar",
       "info"

@@ -36,15 +36,28 @@
 | 工具接入 | 改 `extensions/ICBC-HuiZhi-Agent.ts` | 注册 `analyze_company` / `ask_insights` | 扩展 |
 | 看板 | 改 `web_template.html` | 商机详情展示预取证据片段 | 扩展 |
 
-## 5. 技术选型
-- **Embedding**：阿里百炼 `text-embedding-v3`（或智谱 embedding-2）。DeepSeek 不提供向量接口，必须另配；
-  环境变量 `EMBEDDING_API_KEY`，缺省降级为仅关键词检索（BM25），流程不断
-- **向量库**：FAISS（轻量、无服务、够演示）；数据量大再换 ChromaDB/Milvus
-- **混合检索**：BM25（SQLite FTS5，已有 SQLite 可复用）+ 向量 Top-K，RRF 公式融合，兼顾关键词精确与语义泛化
-- **分块策略**：按公告正文天然边界切块（一篇公告 ≥1 块，长公告按章节），每块 ≤800 token；
-  块保留元数据，检索命中后整篇回链
-- **重排序**：P2 可选，用 DeepSeek 对 Top-10 粗排结果做相关性打分取 Top-5（可控成本，不引第三方重排模型）
+## 5. 技术选型（定稿，2026-08-05 实测验证）
 
+| 层 | 选型 | 关键参数 | 验证状态 |
+| --- | --- | --- | --- |
+| Embedding | 阿里云百炼 `text-embedding-v4`（兼容模式 `/v1/embeddings`） | 1024 维 | ✅ 已用现有 DASHSCOPE_API_KEY 实测通过 |
+| 向量库 | `faiss-cpu`，IndexFlatIP（归一化内积） | 千级块规模足够，无需 Milvus | ⏳ 待安装（唯一新增重量依赖） |
+| 关键词 BM25 | SQLite FTS5（Python 内置，零依赖） | `CREATE VIRTUAL TABLE ... USING fts5` | ✅ 已实测通过 |
+| 混合融合 | RRF 融合，k=60：BM25 Top10 ∪ 向量 Top10 → Top5 | 兼顾精确关键词与语义泛化 | 实现阶段验证 |
+| 分块 | 按公告/新闻/年报自然段落切块 | 每块 ≤800 token（约 1200 汉字），保留 company/date/source/title/url/type 元数据 | 实现阶段验证 |
+| 生成 | DeepSeek `deepseek-chat` | 证据拼接 + [来源] 角标 | ✅ DEEPSEEK_API_KEY 已在环境变量 |
+| 重排序（P2） | DeepSeek 对 Top10 相关性打分取 Top5 | 不引第三方重排模型 | 预留 |
+
+**Key 读取优先级**：`EMBEDDING_API_KEY` → `DASHSCOPE_API_KEY`（vision skill `.env` 已有）→ 无 key 自动降级为仅 BM25 关键词检索，流程不中断。
+
+**成本**：embedding 调用量 ≈ 文档块数（几百~几千块）；text-embedding-v4 单价约 0.5 元/百万 token，整轮索引 < 0.1 元，可忽略。
+
+**新增依赖**：仅 `faiss-cpu`（pip 安装，约 70MB）。其余复用现有环境（openai / pypdf / numpy / SQLite FTS5）。
+
+**备选（不选的原因）**：
+- ChromaDB / Milvus：千级块规模用不上，服务与依赖更重
+- 智谱 embedding-2：需额外申请 key；百炼 key 已有且已实测
+- sentence-transformers / bge-m3 本地模型：需下载模型 + torch，体积大，离线收益不明显
 ## 6. 主链路时序
 
 ```

@@ -10,8 +10,8 @@ const notoSansMono = Noto_Sans_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "工商银行 · 企业外汇商机雷达",
-  description: "工商银行深圳分行 · 基于 Pi Coding Agent 的企业外汇需求商机雷达",
+  title: "工银汇智 · 企业外汇智能体",
+  description: "工商银行深圳分行 · 基于 Pi Coding Agent 的企业外汇智能体「工银汇智」",
 };
 
 export default function RootLayout({

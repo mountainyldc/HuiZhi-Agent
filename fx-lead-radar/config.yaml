@@ -1,4 +1,4 @@
-# 企业外汇需求商机雷达 - 配置
+# 工银汇智 · 企业外汇智能体 - 配置
 # 所有 key 不写死，从环境变量读取
 
 region:
@@ -29,7 +29,7 @@ review:
   timeout_seconds: 60
 
 web:
-  title: 外汇与国际业务商机雷达
+  title: 工银汇智 · 企业外汇智能体
   output: web/index.html
 
 store:

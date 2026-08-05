@@ -424,7 +424,7 @@ export function AppShell() {
 
   const activeFileTab = fileTabs.find((t) => t.id === activeFileTabId) ?? null;
   const activeCwdName = activeCwd ? getFileName(activeCwd) || activeCwd : null;
-  const windowTitle = activeCwdName ? `${activeCwdName} - 工商银行 · 企业外汇商机雷达` : "工商银行 · 企业外汇商机雷达";
+  const windowTitle = activeCwdName ? `${activeCwdName} - 工银汇智 · 企业外汇智能体` : "工银汇智 · 企业外汇智能体";
 
   useEffect(() => {
     const syncWindowTitle = () => {
@@ -700,7 +700,7 @@ export function AppShell() {
               ICBC
             </span>
             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text)", whiteSpace: "nowrap" }}>
-              工商银行 · 企业外汇商机雷达
+              工银汇智 · 企业外汇智能体
             </span>
           </div>
           {showChat && (

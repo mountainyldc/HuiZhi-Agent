@@ -1,4 +1,4 @@
-# 企业外汇需求商机雷达 Agent（基于 Pi Coding Agent）
+# 工银汇智 · 企业外汇智能体（基于 Pi Coding Agent）
 
 > 项目统一目录：`E:\2026工行实习\基于picoding-agent的企业外汇需求商机雷达agent实现`
 > GitHub：https://github.com/mountainyldc/fx-lead-radar （clone 即用）

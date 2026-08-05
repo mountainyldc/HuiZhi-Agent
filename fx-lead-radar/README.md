@@ -1,4 +1,4 @@
-# fx-lead-radar — 企业外汇需求商机雷达（Pi Agent 编排）
+# fx-lead-radar — 工银汇智 · 企业外汇智能体（Pi Agent 编排）
 
 基于 Pi Coding Agent 的商机雷达：自动抓取公开数据 → 规则初筛（广东企业 + 外汇套保 + 45 天）
 → 5 维评分 → DeepSeek 大模型复核 → 生成每日商机队列 → 渲染 Web 页面 → 认领 / 标记无效。

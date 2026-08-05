@@ -45,10 +45,18 @@ python engines/serve.py                 # 打开 http://127.0.0.1:8000
 
 ## Pi Web（桌面端）用法
 
-1. `git clone https://github.com/agegr/pi-web.git` → `cd pi-web` → `npm install` → `npm run dev`
-2. 打开 http://127.0.0.1:30141 ，在 Models 面板配置 DeepSeek（API Key + 模型 `deepseek-chat`）
-3. 左侧 `Select project...` 选择本仓库目录，聊天框输入 **`跑一遍企业外汇需求商机雷达`**
-4. 流程跑完后另开终端：
+Pi Web 已整合进本仓库的 `../pi-web`（已定制 ICBC 标识，含中文快速开始与 DeepSeek 配置教程）：
+
+```bash
+cd ../pi-web
+npm install
+npm run build
+npm start            # 打开 http://127.0.0.1:30141
+```
+
+1. 打开 http://127.0.0.1:30141 ，在 Models 面板配置 DeepSeek（Base URL `https://api.deepseek.com` + API Key + 模型 `deepseek-chat`）
+2. 左侧 `Select project...` 选择本仓库目录，聊天框输入 **`跑一遍企业外汇需求商机雷达`**
+3. 流程跑完后另开终端：
    ```bash
    cd fx-lead-radar
    python engines/serve.py   # 打开 http://127.0.0.1:8000 看商机队列

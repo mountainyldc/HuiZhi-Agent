@@ -23,10 +23,26 @@
 06-自由提问与分析拓展计划.md  # 形态A + 4 个新工具设计（计划未实施）
 ```
 
-## 代码（✅ 已实现）
+## 代码（✅ 已实现，单仓库 clone 即用）
 ```
-fx-lead-radar/    # 完整实现：Pi 扩展 + skills + 9 个引擎 + 苹果风 Web 页面
-  README.md       # 使用说明（快速开始 / Pi Web 集成 / 接口一览 / 边界）
+fx-lead-radar/    # 商机雷达本体：Pi 扩展 + skills + 9 个引擎 + 苹果风 Web 页面
+  README.md       # 使用说明（快速开始 / 接口一览 / 边界）
+pi-web/           # Pi Web 桌面端（已定制 ICBC 标识），clone 后 npm install 即可用
+```
+
+## 一条命令体验（clone 即用）
+
+```bash
+git clone https://github.com/mountainyldc/fx-lead-radar.git
+cd fx-lead-radar
+
+# 商机雷达 Web（Python 3.10+，自动播种数据）
+pip install -r fx-lead-radar/requirements.txt
+cd fx-lead-radar && python engines/serve.py     # 打开 http://127.0.0.1:8000
+
+# Pi Web 桌面端（Node.js >= 22.19，配置 DeepSeek 后可直接对话/跑雷达）
+cd ../pi-web
+npm install && npm run build && npm start       # 打开 http://127.0.0.1:30141
 ```
 
 ## 2026-08-05 更新

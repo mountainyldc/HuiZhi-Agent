@@ -42,6 +42,26 @@ def init_db(db_path=None):
             opportunity_id TEXT PRIMARY KEY,
             review TEXT, reviewed_at TEXT
         );
+        CREATE TABLE IF NOT EXISTS documents(
+            id TEXT PRIMARY KEY,
+            company TEXT, title TEXT, url TEXT, publish_date TEXT,
+            source TEXT, doc_type TEXT, raw_text TEXT, created_at TEXT
+        );
+        CREATE TABLE IF NOT EXISTS doc_chunks(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            doc_id TEXT, company TEXT, chunk_index INTEGER,
+            text TEXT, meta TEXT
+        );
+        CREATE VIRTUAL TABLE IF NOT EXISTS chunks_fts USING fts5(
+            text, company, tokenize='trigram'
+        );
+        CREATE TABLE IF NOT EXISTS company_profiles(
+            company TEXT PRIMARY KEY,
+            legal_rep TEXT, registered_address TEXT, office_address TEXT,
+            zip_code TEXT, website TEXT, email TEXT, stock_codes TEXT,
+            registered_capital TEXT, credit_code TEXT,
+            source_title TEXT, source_url TEXT, report_date TEXT, updated_at TEXT
+        );
         """
     )
     try:
@@ -246,6 +266,181 @@ def get_review(opp_id):
     d = dict(r)
     d["review"] = json.loads(d["review"])
     return d
+
+
+# ---------- 文档（RAG 语料） ----------
+
+def upsert_document(doc):
+    conn = _conn()
+    conn.execute(
+        """INSERT OR REPLACE INTO documents
+           (id, company, title, url, publish_date, source, doc_type, raw_text, created_at)
+           VALUES (?,?,?,?,?,?,?,?,?)""",
+        (
+            doc["id"], doc.get("company"), doc.get("title"), doc.get("url"),
+            doc.get("publish_date"), doc.get("source"), doc.get("doc_type"),
+            doc.get("raw_text"), doc.get("created_at"),
+        ),
+    )
+    conn.commit()
+    conn.close()
+    return doc["id"]
+
+
+def get_documents(company=None, limit=100):
+    conn = _conn()
+    if company:
+        rows = conn.execute(
+            "SELECT * FROM documents WHERE company=? ORDER BY created_at DESC LIMIT ?",
+            (company, limit),
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT * FROM documents ORDER BY created_at DESC LIMIT ?", (limit,)
+        ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_document(doc_id):
+    conn = _conn()
+    r = conn.execute("SELECT * FROM documents WHERE id=?", (doc_id,)).fetchone()
+    conn.close()
+    return dict(r) if r else None
+
+
+def upsert_chunks(chunks):
+    """写入分块：doc_chunks + chunks_fts（trigram）。chunks: list[dict]。"""
+    if not chunks:
+        return
+    conn = _conn()
+    conn.execute("BEGIN")
+    for c in chunks:
+        conn.execute(
+            """INSERT INTO doc_chunks(doc_id, company, chunk_index, text, meta)
+               VALUES (?,?,?,?,?)""",
+            (
+                c["doc_id"], c.get("company"), c.get("chunk_index", 0),
+                c["text"], json.dumps(c.get("meta", {}), ensure_ascii=False),
+            ),
+        )
+        conn.execute(
+            "INSERT INTO chunks_fts(text, company) VALUES (?,?)",
+            (c["text"], c.get("company") or ""),
+        )
+    conn.commit()
+    conn.close()
+
+
+def clear_chunks(doc_id=None):
+    """清空分块（doc_id 为空则全清）。返回删除条数。"""
+    conn = _conn()
+    if doc_id:
+        rows = conn.execute(
+            "SELECT id FROM doc_chunks WHERE doc_id=?", (doc_id,)
+        ).fetchall()
+        ids = [r["id"] for r in rows]
+        if ids:
+            marks = ",".join("?" * len(ids))
+            conn.execute(
+                f"DELETE FROM chunks_fts WHERE rowid IN ({marks})", ids
+            )
+            conn.execute("DELETE FROM doc_chunks WHERE doc_id=?", (doc_id,))
+        conn.commit()
+        conn.close()
+        return len(ids)
+    conn.execute("DELETE FROM doc_chunks")
+    conn.execute("DELETE FROM chunks_fts")
+    conn.commit()
+    conn.close()
+    return 0
+
+
+def get_chunks(doc_id=None, company=None, limit=1000):
+    conn = _conn()
+    sql = "SELECT * FROM doc_chunks"
+    args = []
+    conds = []
+    if doc_id:
+        conds.append("doc_id=?")
+        args.append(doc_id)
+    if company:
+        conds.append("company=?")
+        args.append(company)
+    if conds:
+        sql += " WHERE " + " AND ".join(conds)
+    sql += " ORDER BY id LIMIT ?"
+    args.append(limit)
+    rows = conn.execute(sql, args).fetchall()
+    conn.close()
+    out = []
+    for r in rows:
+        d = dict(r)
+        d["meta"] = json.loads(d["meta"] or "{}")
+        out.append(d)
+    return out
+
+
+def search_chunks_fts(query, company=None, limit=20):
+    """FTS5 trigram 检索。query 需为合法 MATCH 表达式（外部已转义）。"""
+    conn = _conn()
+    sql = """SELECT c.id, c.doc_id, c.company, c.chunk_index, c.text, c.meta
+             FROM chunks_fts f JOIN doc_chunks c ON c.id = f.rowid
+             WHERE chunks_fts MATCH ?"""
+    args = [query]
+    if company:
+        sql += " AND c.company=?"
+        args.append(company)
+    sql += " ORDER BY bm25(chunks_fts) LIMIT ?"
+    args.append(limit)
+    rows = conn.execute(sql, args).fetchall()
+    conn.close()
+    out = []
+    for r in rows:
+        d = dict(r)
+        d["meta"] = json.loads(d["meta"] or "{}")
+        out.append(d)
+    return out
+
+
+# ---------- 企业档案 ----------
+
+def upsert_profile(profile):
+    conn = _conn()
+    conn.execute(
+        """INSERT OR REPLACE INTO company_profiles
+           (company, legal_rep, registered_address, office_address, zip_code,
+            website, email, stock_codes, registered_capital, credit_code,
+            source_title, source_url, report_date, updated_at)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (
+            profile["company"], profile.get("legal_rep"),
+            profile.get("registered_address"), profile.get("office_address"),
+            profile.get("zip_code"), profile.get("website"), profile.get("email"),
+            profile.get("stock_codes"), profile.get("registered_capital"),
+            profile.get("credit_code"), profile.get("source_title"),
+            profile.get("source_url"), profile.get("report_date"),
+            profile.get("updated_at"),
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_profile(company):
+    conn = _conn()
+    r = conn.execute("SELECT * FROM company_profiles WHERE company=?", (company,)).fetchone()
+    conn.close()
+    return dict(r) if r else None
+
+
+def list_profiles(limit=200):
+    conn = _conn()
+    rows = conn.execute(
+        "SELECT * FROM company_profiles ORDER BY updated_at DESC LIMIT ?", (limit,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 
 
 if __name__ == "__main__":

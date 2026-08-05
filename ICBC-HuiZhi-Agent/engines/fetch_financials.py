@@ -40,39 +40,115 @@ KW_RULES = [
 AMOUNT_RE = re.compile(r"([-+]?\d[\d,.]*)\s*(万元|亿元|元)")
 
 
-def _find_report_ann(company):
-    """查询巨潮：返回最近一期定期报告公告（优先年度报告，其次半年度报告）。"""
-    start = (datetime.date.today() - datetime.timedelta(days=730)).isoformat()
-    end = datetime.date.today().isoformat()
-    data = {
-        "pageNum": "1", "pageSize": "30", "column": "",
-        "tabName": "fulltext", "plate": "", "stock": "",
-        "searchkey": company, "secid": "", "category": "",
-        "trade": "", "seDate": f"{start}~{end}",
-        "sortName": "", "sortType": "", "isHLtitle": "true",
-    }
+EXCLUDE_TITLE = ("英文版", "英文", "提示性公告", "摘要", "更正", "取消", "（H股）", "(H股)", "中英文", "问询", "监管", "回复")
+
+def _column_for(code):
+    if code.startswith(("60", "68", "9")):
+        return "sse"
+    if code.startswith(("8", "4", "92")):
+        return "bj"
+    return "szse"
+
+
+def resolve_company(company):
+    """用巨潮 topSearch 精确解析公司 -> (code, org_id, zwjc)。失败返回 None。"""
+    try:
+        resp = requests.post(
+            "http://www.cninfo.com.cn/new/information/topSearch/query",
+            data={"keyWord": company, "maxNum": "10"},
+            headers=HEADERS, timeout=20,
+        )
+        resp.raise_for_status()
+        items = resp.json() or []
+        if not items:
+            return None
+        it = items[0]
+        return it.get("code"), it.get("orgId"), it.get("zwjc")
+    except Exception:
+        return None
+
+
+def _clean_title_em(title):
+    return re.sub(r"</?em>", "", title or "").strip()
+
+
+def _fetch_anns(data):
     resp = requests.post(QUERY_URL, data=data, headers=HEADERS, timeout=25)
     resp.raise_for_status()
-    anns = resp.json().get("announcements") or []
-    picked = None
-    for it in anns:
-        title = re.sub(r"</?em>", "", it.get("announcementTitle") or "")
-        if "年度报告" in title and "半年度" not in title and "摘要" not in title and "更正" not in title:
-            picked = (it, title, 2)
+    return resp.json().get("announcements") or []
+
+
+def _fetch_anns_all(data, max_pages=8):
+    """分页抓全：巨潮单页最多 30 条，年度报告常在更早页，需翻页直到找到或翻完。"""
+    seen = {}
+    for page in range(1, max_pages + 1):
+        d = dict(data, pageNum=str(page), pageSize="30")
+        try:
+            anns = _fetch_anns(d)
+        except Exception:
             break
-    if not picked:
+        if not anns:
+            break
         for it in anns:
-            title = re.sub(r"</?em>", "", it.get("announcementTitle") or "")
-            if "半年度报告" in title and "摘要" not in title:
-                picked = (it, title, 1)
-                break
-    if not picked:
+            key = it.get("announcementTime"), it.get("adjunctUrl")
+            if key not in seen:
+                seen[key] = it
+        if len(anns) < 30:
+            break
+    return list(seen.values())
+
+
+def _pick_report(anns):
+    """按标题优先级选报告：年报 > 半年报 > 季报，排除英文版/提示性公告等。"""
+    anns = sorted(anns, key=lambda x: x.get("announcementTime") or 0, reverse=True)
+
+    def _ok(title, kind):
+        if any(x in title for x in EXCLUDE_TITLE):
+            return False
+        if kind == "annual":
+            return "年度报告" in title and "半年度" not in title
+        if kind == "semi":
+            return "半年度报告" in title
+        return "季度报告" in title and "半年度" not in title
+
+    for kind, prio in (("annual", 2), ("semi", 1), ("quarter", 0)):
         for it in anns:
-            title = re.sub(r"</?em>", "", it.get("announcementTitle") or "")
-            if "季度报告" in title and "摘要" not in title:
-                picked = (it, title, 0)
-                break
-    return picked
+            title = _clean_title_em(it.get("announcementTitle") or "")
+            if _ok(title, kind):
+                return it, title, prio
+    return None
+
+
+def _find_report_ann(company):
+    """查询巨潮：优先按 代码,orgId 精确过滤，其次回退公司名全文本搜索。"""
+    start = (datetime.date.today() - datetime.timedelta(days=730)).isoformat()
+    end = datetime.date.today().isoformat()
+    base = {
+        "pageNum": "1", "pageSize": "60", "column": "",
+        "tabName": "fulltext", "plate": "", "stock": "",
+        "searchkey": "", "secid": "", "category": "",
+        "trade": "", "seDate": start + "~" + end,
+        "sortName": "", "sortType": "", "isHLtitle": "true",
+    }
+    resolved = resolve_company(company)
+    if resolved:
+        code, org_id, _zwjc = resolved
+        data = dict(base, column=_column_for(code), stock=code + "," + org_id)
+        try:
+            picked = _pick_report(_fetch_anns_all(data))
+            if picked:
+                return picked
+        except Exception:
+            pass
+    data = dict(base, searchkey=company)
+    try:
+        picked = _pick_report(_fetch_anns_all(data))
+        if picked:
+            return picked
+    except Exception:
+        pass
+    return None
+
 
 
 def _download_pdf(url, dest):

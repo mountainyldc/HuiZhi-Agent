@@ -1,0 +1,369 @@
+{
+  "ok": 19,
+  "no_report": 0,
+  "no_pdf": 0,
+  "error": 0,
+  "items": [
+    {
+      "company": "东鹏饮料",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "林木勤",
+        "registered_address": "深圳市南山区桃源街道珠光北路142号众冠红花岭工业西区3栋1楼",
+        "office_address": "广东省深圳市南山区桃源街道珠光北路142号明亮科技园88号3栋1楼",
+        "zip_code": "518057",
+        "website": "https://www.szeastroc.com/",
+        "email": "boardoffice@szeastroc.com",
+        "stock_codes": "605499.SH, 09980.HK",
+        "registered_capital": "",
+        "company": "东鹏饮料",
+        "source_title": "东鹏饮料（集团）股份有限公司2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-03-31/1225063447.PDF",
+        "report_date": "2026-03-31",
+        "updated_at": "2026-08-05T15:46:37"
+      }
+    },
+    {
+      "company": "燕麦科技",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "刘燕",
+        "registered_address": "深圳市光明区凤凰街道凤凰社区观光路招商局光明科技园A1A2栋A2栋308",
+        "office_address": "深圳市光明新区凤凰街道高新技术产业园区邦凯路9号邦凯科技城2号C栋厂房1、2、3楼",
+        "zip_code": "518107",
+        "website": "http://www.yanmade.com",
+        "email": "ir@yanmade.com",
+        "stock_codes": "688312.SH",
+        "registered_capital": "145,771,216.00 元",
+        "company": "燕麦科技",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-11/1225096753.PDF",
+        "report_date": "2026-04-11",
+        "updated_at": "2026-08-05T15:46:43"
+      }
+    },
+    {
+      "company": "海大集团",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "薛华",
+        "registered_address": "广东省广州市番禺区南村镇万博四路42号2座701",
+        "office_address": "广东省广州市番禺区化龙镇龙泰街8号海大科学园1栋",
+        "zip_code": "",
+        "website": "www.haid.com.cn",
+        "email": "zqbgs@haid.com.cn",
+        "stock_codes": "002311.SZ",
+        "registered_capital": "",
+        "company": "海大集团",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-28/1225203635.PDF",
+        "report_date": "2026-04-28",
+        "updated_at": "2026-08-05T15:46:53"
+      }
+    },
+    {
+      "company": "鸿合科技",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "姚瑞波",
+        "registered_address": "深圳市坪山区坑梓街道沙田社区丹梓北路1号鸿合大厦1栋B座101",
+        "office_address": "北京市朝阳区北辰东路8号院北辰时代大厦9层",
+        "zip_code": "",
+        "website": "www.honghe-tech.com",
+        "email": "dongban@honghe-tech.com",
+        "stock_codes": "002955.SZ",
+        "registered_capital": "23,663.9912 万元",
+        "company": "鸿合科技",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-03-18/1225015164.PDF",
+        "report_date": "2026-03-18",
+        "updated_at": "2026-08-05T15:46:59"
+      }
+    },
+    {
+      "company": "劲拓股份",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "朱玺",
+        "registered_address": "深圳市宝安区航城街道鹤洲社区广深高速北侧鹤洲工业区劲拓自动化工业厂区1层至5层",
+        "office_address": "深圳市宝安区石岩街道水田社区祝龙田北路8号劲拓高新技术中心（劲拓光电产业园）",
+        "zip_code": "",
+        "website": "www.jt-ele.com",
+        "email": "zqtzb@jt-ele.com",
+        "stock_codes": "300400.SZ",
+        "registered_capital": "",
+        "company": "劲拓股份",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-13/1225095716.PDF",
+        "report_date": "2026-04-13",
+        "updated_at": "2026-08-05T15:47:04"
+      }
+    },
+    {
+      "company": "特发信息",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "李宝东",
+        "registered_address": "深圳市南山区高新区中区科丰路2号特发信息港大厦B栋18楼。法定代表人：李宝东。",
+        "office_address": "深圳市南山区高新区中区科丰路2号特发信息港大厦B栋18楼",
+        "zip_code": "",
+        "website": "www.sdgi.com.cn",
+        "email": "sdgi_dmc@sdgi.com.cn",
+        "stock_codes": "000070.SZ",
+        "registered_capital": "",
+        "company": "特发信息",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-22/1225139223.PDF",
+        "report_date": "2026-04-22",
+        "updated_at": "2026-08-05T15:47:11"
+      }
+    },
+    {
+      "company": "一品红",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "李捍雄",
+        "registered_address": "广州市黄埔区广州国际生物岛寰宇一路27号云润大厦17层",
+        "office_address": "广州市黄埔区广州国际生物岛寰宇一路27号云润大厦15-19层",
+        "zip_code": "",
+        "website": "www.apichope.com",
+        "email": "zqb@gdyph.com",
+        "stock_codes": "300723.SZ",
+        "registered_capital": "",
+        "company": "一品红",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-24/1225160271.PDF",
+        "report_date": "2026-04-24",
+        "updated_at": "2026-08-05T15:47:16"
+      }
+    },
+    {
+      "company": "领益智造",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "曾芳勤",
+        "registered_address": "广东省江门市蓬江区龙湾路8号",
+        "office_address": "广东省江门市蓬江区龙湾路8号",
+        "zip_code": "",
+        "website": "www.lingyiitech.com",
+        "email": "IR@lingyiitech.com",
+        "stock_codes": "002600.SZ",
+        "registered_capital": "",
+        "company": "领益智造",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-03-28/1225043467.PDF",
+        "report_date": "2026-03-28",
+        "updated_at": "2026-08-05T15:47:30"
+      }
+    },
+    {
+      "company": "卡莱特",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "周锦志",
+        "registered_address": "深圳市南山区西丽街道西丽社区打石一路深圳国际创新谷八栋A座3801（37-39层）（一照多址企业）",
+        "office_address": "深圳市南山区西丽街道西丽社区打石一路深圳国际创新谷八栋A座3801（37-39层）",
+        "zip_code": "",
+        "website": "www.lednets.com",
+        "email": "ir@lednets.com",
+        "stock_codes": "301391.SZ",
+        "registered_capital": "100.00 万元",
+        "company": "卡莱特",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-29/1225248199.PDF",
+        "report_date": "2026-04-29",
+        "updated_at": "2026-08-05T15:47:37"
+      }
+    },
+    {
+      "company": "特力A",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "富春龙",
+        "registered_address": "深圳市罗湖区水贝二路五十六号特力大厦三楼",
+        "office_address": "深圳市罗湖区水贝二路五十六号特力大厦三楼、四楼",
+        "zip_code": "",
+        "website": "www.tellus.cn",
+        "email": "ir@tellus.cn",
+        "stock_codes": "000025.SZ",
+        "registered_capital": "431,058,320.00 元",
+        "company": "特力A",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-22/1225138352.PDF",
+        "report_date": "2026-04-22",
+        "updated_at": "2026-08-05T15:47:42"
+      }
+    },
+    {
+      "company": "美好医疗",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "熊小川",
+        "registered_address": "深圳市龙岗区宝龙街道宝龙社区宝龙三路8号美好创亿大厦2号厂房101-1701（一照多址企业）",
+        "office_address": "深圳市龙岗区宝龙街道宝龙六路3号新中桥工业园B栋2楼",
+        "zip_code": "",
+        "website": "www.mehow.com",
+        "email": "ir@mailmehow.com",
+        "stock_codes": "301363.SZ",
+        "registered_capital": "56,887.1180 万元",
+        "company": "美好医疗",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-21/1225131276.PDF",
+        "report_date": "2026-04-21",
+        "updated_at": "2026-08-05T15:47:49"
+      }
+    },
+    {
+      "company": "鹏辉能源",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "夏信德",
+        "registered_address": "广州市番禺区沙湾镇市良路(西村段)912号",
+        "office_address": "广州市番禺区沙湾镇市良路(西村段)912号",
+        "zip_code": "",
+        "website": "www.greatpower.net",
+        "email": "info@greatpower.net",
+        "stock_codes": "300438.SZ",
+        "registered_capital": "6,000.00 万元",
+        "company": "鹏辉能源",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-29/1225243780.PDF",
+        "report_date": "2026-04-29",
+        "updated_at": "2026-08-05T15:47:56"
+      }
+    },
+    {
+      "company": "西陇科学",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "黄少群",
+        "registered_address": "汕头市潮汕路西陇中街1-3号；",
+        "office_address": "广东省广州市黄埔区科学城新瑞路6号；",
+        "zip_code": "",
+        "website": "http://www.xilongs.com",
+        "email": "xlhg@xlhg.cn",
+        "stock_codes": "002584.SZ",
+        "registered_capital": "200 万元",
+        "company": "西陇科学",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-29/1225242003.PDF",
+        "report_date": "2026-04-29",
+        "updated_at": "2026-08-05T15:48:02"
+      }
+    },
+    {
+      "company": "捷邦科技",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "杨巍",
+        "registered_address": "广东省东莞市松山湖园区研发一路1号1栋201室",
+        "office_address": "广东省东莞市常平镇常东路636号1栋",
+        "zip_code": "",
+        "website": "https://www.jpond.com.cn/",
+        "email": "zhengquan@jpond.com.cn",
+        "stock_codes": "301326.SZ",
+        "registered_capital": "7,245.9528 万元",
+        "company": "捷邦科技",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-29/1225235873.PDF",
+        "report_date": "2026-04-29",
+        "updated_at": "2026-08-05T15:48:09"
+      }
+    },
+    {
+      "company": "华立股份",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "董建刚",
+        "registered_address": "东莞市常平镇松柏塘村",
+        "office_address": "东莞市常平镇松柏塘村",
+        "zip_code": "523561",
+        "website": "www.dghuafuli.com",
+        "email": "investor@dghuafuli.com",
+        "stock_codes": "603038.SH",
+        "registered_capital": "268,677,106.00 元",
+        "company": "华立股份",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-28/1225220660.PDF",
+        "report_date": "2026-04-28",
+        "updated_at": "2026-08-05T15:48:16"
+      }
+    },
+    {
+      "company": "富信科技",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "刘富林",
+        "registered_address": "佛山市顺德高新区(容桂)科苑三路20号",
+        "office_address": "佛山市顺德高新区(容桂)科苑三路20号",
+        "zip_code": "528305",
+        "website": "www.fuxin-cn.com",
+        "email": "fxzqb@fuxin-cn.com",
+        "stock_codes": "688662.SH",
+        "registered_capital": "",
+        "company": "富信科技",
+        "source_title": "广东富信科技股份有限公司2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-27/1225197942.PDF",
+        "report_date": "2026-04-27",
+        "updated_at": "2026-08-05T15:48:23"
+      }
+    },
+    {
+      "company": "昌红科技",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "李焕昌",
+        "registered_address": "深圳市坪山区碧岭街道沙湖社区锦龙大道3号昌红科技公司1层至3层",
+        "office_address": "深圳市坪山区碧岭街道沙湖社区锦龙大道3号昌红科技公司1层至3层",
+        "zip_code": "",
+        "website": "www.sz-changhong.com",
+        "email": "security@sz-changhong.com",
+        "stock_codes": "300151.SZ",
+        "registered_capital": "53,250.8027 万元",
+        "company": "昌红科技",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-11/1225094379.PDF",
+        "report_date": "2026-04-11",
+        "updated_at": "2026-08-05T15:48:30"
+      }
+    },
+    {
+      "company": "汉宇集团",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "石华山",
+        "registered_address": "江门市高新技术开发区清澜路336号",
+        "office_address": "江门市高新技术开发区清澜路336号",
+        "zip_code": "",
+        "website": "www.idearhanyu.com",
+        "email": "idearhanyu@oceanhanyu.com",
+        "stock_codes": "300403.SZ",
+        "registered_capital": "603,000,000 元",
+        "company": "汉宇集团",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-11/1225094198.PDF",
+        "report_date": "2026-04-11",
+        "updated_at": "2026-08-05T15:48:35"
+      }
+    },
+    {
+      "company": "民爆光电",
+      "status": "ok",
+      "profile": {
+        "legal_rep": "谢祖华",
+        "registered_address": "深圳市宝安区福永街道（福园一路西侧）润恒工业厂区2#厂房第二、三、四、五层",
+        "office_address": "深圳市宝安区福永街道（福园一路西侧）润恒工业厂区2#厂房",
+        "zip_code": "",
+        "website": "www.upshine.cn",
+        "email": "zjb01@upshine.cn",
+        "stock_codes": "301362.SZ",
+        "registered_capital": "1,000 万元",
+        "company": "民爆光电",
+        "source_title": "2025年年度报告",
+        "source_url": "http://static.cninfo.com.cn/finalpage/2026-04-29/1225413903.pdf",
+        "report_date": "2026-04-29",
+        "updated_at": "2026-08-05T15:48:41"
+      }
+    }
+  ]
+}

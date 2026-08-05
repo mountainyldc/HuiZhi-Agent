@@ -1,32 +1,32 @@
 {
   "status": "ok",
-  "company": "鸿合科技",
+  "company": "华立股份",
   "report_year": "2025 年报",
   "source": {
     "title": "2025年年度报告",
-    "url": "http://static.cninfo.com.cn/finalpage/2026-03-18/1225015164.PDF",
-    "publish_date": "2026-03-18"
+    "url": "http://static.cninfo.com.cn/finalpage/2026-04-28/1225220660.PDF",
+    "publish_date": "2026-04-28"
   },
   "indicators": [
     {
       "name": "汇兑损益",
-      "value": "17475.82 万元",
+      "value": "损失 0.0 万元",
       "note": "财务费用中的汇兑损益",
-      "page": 25
+      "page": 121
     },
     {
-      "name": "海外收入",
+      "name": "境外收入",
       "value": "详见财报",
       "note": "财报披露口径",
-      "page": 33
+      "page": 226
     },
     {
-      "name": "出口收入",
+      "name": "外币报表折算差额",
       "value": "详见财报",
       "note": "财报披露口径",
-      "page": 90
+      "page": 120
     }
   ],
   "message": "",
-  "updated_at": "2026-08-05 15:18"
+  "updated_at": "2026-08-05 15:21"
 }

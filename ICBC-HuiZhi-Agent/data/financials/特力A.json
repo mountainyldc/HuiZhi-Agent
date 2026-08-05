@@ -1,18 +1,18 @@
 {
   "status": "ok",
-  "company": "鹏辉能源",
+  "company": "特力A",
   "report_year": "2025 年报",
   "source": {
     "title": "2025年年度报告",
-    "url": "http://static.cninfo.com.cn/finalpage/2026-04-29/1225243780.PDF",
-    "publish_date": "2026-04-29"
+    "url": "http://static.cninfo.com.cn/finalpage/2026-04-22/1225138352.PDF",
+    "publish_date": "2026-04-22"
   },
   "indicators": [
     {
       "name": "汇兑损益",
-      "value": "52084.55 万元",
+      "value": "损失 1.34 万元",
       "note": "财务费用中的汇兑损益",
-      "page": 17
+      "page": 134
     }
   ],
   "message": "",

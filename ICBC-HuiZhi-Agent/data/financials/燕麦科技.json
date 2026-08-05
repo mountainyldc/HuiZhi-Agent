@@ -1,13 +1,26 @@
 {
   "status": "ok",
   "company": "燕麦科技",
-  "report_year": "2026 季报",
+  "report_year": "2025 年报",
   "source": {
-    "title": "2026年第一季度报告",
-    "url": "http://static.cninfo.com.cn/finalpage/2026-04-25/1225177309.PDF",
-    "publish_date": "2026-04-25"
+    "title": "2025年年度报告",
+    "url": "http://static.cninfo.com.cn/finalpage/2026-04-11/1225096753.PDF",
+    "publish_date": "2026-04-11"
   },
-  "indicators": [],
-  "message": "已解析年报，但未提取到外汇相关指标（可能为扫描件）。",
-  "updated_at": "2026-08-05 09:54"
+  "indicators": [
+    {
+      "name": "汇兑损益",
+      "value": "955.38 万元",
+      "note": "财务费用中的汇兑损益",
+      "page": 197
+    },
+    {
+      "name": "出口收入",
+      "value": "详见财报",
+      "note": "财报披露口径",
+      "page": 105
+    }
+  ],
+  "message": "",
+  "updated_at": "2026-08-05 15:17"
 }

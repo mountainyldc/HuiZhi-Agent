@@ -3,11 +3,24 @@
   "company": "海大集团",
   "report_year": "2025 年报",
   "source": {
-    "title": "2025年年度报告（英文版）",
-    "url": "http://static.cninfo.com.cn/finalpage/2026-06-23/1225380943.PDF",
-    "publish_date": "2026-06-23"
+    "title": "2025年年度报告",
+    "url": "http://static.cninfo.com.cn/finalpage/2026-04-28/1225203635.PDF",
+    "publish_date": "2026-04-28"
   },
-  "indicators": [],
-  "message": "已解析年报，但未提取到外汇相关指标（可能为扫描件）。",
-  "updated_at": "2026-08-05 09:55"
+  "indicators": [
+    {
+      "name": "汇兑损益",
+      "value": "损失 513.79 万元",
+      "note": "财务费用中的汇兑损益",
+      "page": 204
+    },
+    {
+      "name": "外币报表折算差额",
+      "value": "详见财报",
+      "note": "财报披露口径",
+      "page": 121
+    }
+  ],
+  "message": "",
+  "updated_at": "2026-08-05 15:18"
 }

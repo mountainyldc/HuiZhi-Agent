@@ -10,3 +10,6 @@ data/financials/*_report.pdf
 
 # 备份/禁用文件不入库
 *.json.bak
+
+# RAG 公告 PDF 下载缓存不入库
+data/rag/pdf/

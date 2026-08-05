@@ -1,7 +1,20 @@
 {
-  "status": "no_report",
+  "status": "ok",
   "company": "美好医疗",
-  "message": "未在巨潮找到该公司的定期报告",
-  "indicators": [],
-  "updated_at": "2026-08-05 09:55"
+  "report_year": "2025 年报",
+  "source": {
+    "title": "2025年年度报告",
+    "url": "http://static.cninfo.com.cn/finalpage/2026-04-21/1225131276.PDF",
+    "publish_date": "2026-04-21"
+  },
+  "indicators": [
+    {
+      "name": "汇兑损益",
+      "value": "0.0 万元",
+      "note": "财务费用中的汇兑损益",
+      "page": 42
+    }
+  ],
+  "message": "",
+  "updated_at": "2026-08-05 15:20"
 }

@@ -1,7 +1,26 @@
 {
-  "status": "no_report",
+  "status": "ok",
   "company": "领益智造",
-  "message": "未在巨潮找到该公司的定期报告",
-  "indicators": [],
-  "updated_at": "2026-08-05 09:55"
+  "report_year": "2025 年报",
+  "source": {
+    "title": "2025年年度报告",
+    "url": "http://static.cninfo.com.cn/finalpage/2026-03-28/1225043467.PDF",
+    "publish_date": "2026-03-28"
+  },
+  "indicators": [
+    {
+      "name": "汇兑损益",
+      "value": "25122.34 万元",
+      "note": "财务费用中的汇兑损益",
+      "page": 337
+    },
+    {
+      "name": "外币报表折算差额",
+      "value": "详见财报",
+      "note": "财报披露口径",
+      "page": 259
+    }
+  ],
+  "message": "",
+  "updated_at": "2026-08-05 15:19"
 }

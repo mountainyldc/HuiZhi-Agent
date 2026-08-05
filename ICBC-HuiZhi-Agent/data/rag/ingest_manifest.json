@@ -1,0 +1,132 @@
+{
+  "ingested": 25,
+  "skipped": 5,
+  "failed": 0,
+  "docs": [
+    {
+      "id": "doc_8922b75faa1a",
+      "company": "特发信息",
+      "chars": 2147
+    },
+    {
+      "id": "doc_7d09fb658399",
+      "company": "东鹏饮料",
+      "chars": 1900
+    },
+    {
+      "id": "doc_076481b459f5",
+      "company": "海大集团",
+      "chars": 3455
+    },
+    {
+      "id": "doc_c22151efa9fd",
+      "company": "一品红",
+      "chars": 2761
+    },
+    {
+      "id": "doc_217c35bbeb70",
+      "company": "领益智造",
+      "chars": 2701
+    },
+    {
+      "id": "doc_51002b6610c0",
+      "company": "卡莱特",
+      "chars": 2901
+    },
+    {
+      "id": "doc_13ae21d69062",
+      "company": "特力A",
+      "chars": 2292
+    },
+    {
+      "id": "doc_3fec291afdf3",
+      "company": "美好医疗",
+      "chars": 4335
+    },
+    {
+      "id": "doc_f23bf72e02ca",
+      "company": "鹏辉能源",
+      "chars": 3892
+    },
+    {
+      "id": "doc_2c369ec7dd20",
+      "company": "鸿合科技",
+      "chars": 2417
+    },
+    {
+      "id": "doc_c551858c870b",
+      "company": "劲拓股份",
+      "chars": 2685
+    },
+    {
+      "id": "doc_e4c3614521b8",
+      "company": "特发信息",
+      "chars": 1771
+    },
+    {
+      "id": "doc_8ca2b12fb0c4",
+      "company": "劲拓股份",
+      "chars": 3887
+    },
+    {
+      "id": "doc_f3d20af71517",
+      "company": "劲拓股份",
+      "chars": 3447
+    },
+    {
+      "id": "doc_f78ba11a5541",
+      "company": "特发信息",
+      "chars": 2149
+    },
+    {
+      "id": "doc_0fccda00dae3",
+      "company": "西陇科学",
+      "chars": 1979
+    },
+    {
+      "id": "doc_9cda4883a076",
+      "company": "捷邦科技",
+      "chars": 3305
+    },
+    {
+      "id": "doc_906902e3f148",
+      "company": "华立股份",
+      "chars": 1480
+    },
+    {
+      "id": "doc_09d467daccf7",
+      "company": "富信科技",
+      "chars": 2116
+    },
+    {
+      "id": "doc_794510829ee1",
+      "company": "富信科技",
+      "chars": 2668
+    },
+    {
+      "id": "doc_3a5dff2766d2",
+      "company": "昌红科技",
+      "chars": 2592
+    },
+    {
+      "id": "doc_98a7935308f3",
+      "company": "昌红科技",
+      "chars": 2620
+    },
+    {
+      "id": "doc_c9837f163154",
+      "company": "汉宇集团",
+      "chars": 2306
+    },
+    {
+      "id": "doc_c1d5dce89479",
+      "company": "民爆光电",
+      "chars": 2813
+    },
+    {
+      "id": "doc_17ef0908e1c9",
+      "company": "民爆光电",
+      "chars": 3526
+    }
+  ]
+}

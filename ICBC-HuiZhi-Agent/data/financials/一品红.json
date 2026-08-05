@@ -1,20 +1,20 @@
 {
   "status": "ok",
-  "company": "鹏辉能源",
+  "company": "一品红",
   "report_year": "2025 年报",
   "source": {
     "title": "2025年年度报告",
-    "url": "http://static.cninfo.com.cn/finalpage/2026-04-29/1225243780.PDF",
-    "publish_date": "2026-04-29"
+    "url": "http://static.cninfo.com.cn/finalpage/2026-04-24/1225160271.PDF",
+    "publish_date": "2026-04-24"
   },
   "indicators": [
     {
       "name": "汇兑损益",
-      "value": "52084.55 万元",
+      "value": "10.5 万元",
       "note": "财务费用中的汇兑损益",
-      "page": 17
+      "page": 171
     }
   ],
   "message": "",
-  "updated_at": "2026-08-05 15:20"
+  "updated_at": "2026-08-05 15:19"
 }

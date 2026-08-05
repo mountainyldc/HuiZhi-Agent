@@ -121,6 +121,8 @@
   .kv { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 13px; color: var(--ink-2); margin-bottom: 12px; }
   .kv span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .kv b { color: var(--ink); font-weight: 600; }
+  .prof { grid-template-columns: 1fr 1fr; margin-bottom: 4px; }
+  .prof span { white-space: normal; }
   .evlink { color: var(--blue); text-decoration: none; font-weight: 600; }
   .evlink:hover { text-decoration: underline; }
   .evrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -267,6 +269,7 @@
 <div id="toast"></div>
 <script>
 const data = __SNAPSHOT_JSON__; const items = Array.isArray(data) ? data : (data.items || []);
+const profiles = __PROFILES_JSON__ || {};
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function tagClass(t){
   if (t.includes("外汇") || t.includes("套保")) return "t1";
@@ -364,6 +367,23 @@ async function updateFinancials(company){
     toast("年报抓取失败");
   }
 }
+function profileCard(it){
+  const p = profiles[it.company_name];
+  if(!p) return `<div class="card"><h3><span class="no">0</span>企业档案</h3><div class="fin-empty">暂无年报档案（可在「最新年报数据」处更新抓取）</div></div>`;
+  const rows = [
+    ["法定代表人", p.legal_rep], ["注册地址", p.registered_address],
+    ["办公地址", p.office_address], ["邮政编码", p.zip_code],
+    ["股票代码", p.stock_codes], ["注册资本", p.registered_capital],
+    ["公司网址", p.website], ["电子邮箱", p.email],
+  ].filter(r=>r[1]);
+  const grid = rows.map(([k,v])=>`<span><b>${esc(k)}：</b>${esc(v)}</span>`).join("");
+  const src = p.source_url ? `<a class="fin-link" href="${esc(p.source_url)}" target="_blank" rel="noopener">${esc(p.source_title||"年报原文")} ↗</a>` : "";
+  const tail = [src, p.report_date?`披露 ${esc(p.report_date)}`:""].filter(Boolean).join(" · ");
+  return `<div class="card"><h3><span class="no">0</span>企业档案</h3>
+    <div class="kv prof">${grid}</div>
+    ${tail?`<div class="src-line">${tail} · 数据来源：巨潮年报</div>`:""}
+  </div>`;
+}
 function showDetail(id){
   const it = items.find(x=>x.opportunity_id===id); if(!it) return;
   renderList(id);
@@ -403,6 +423,8 @@ function showDetail(id){
       <div class="life">${lifeOrder.map(s=>`<span class="pill ${it.lifecycle===s?"on "+lifeKey[s]:""}">${lifeMap[s]}</span>`).join("")}
         ${it.lifecycle==="invalid"?`<span class="pill on invalid">无效</span>`:""}</div>
     </div>
+
+    ${profileCard(it)}
 
     <div class="card"><h3><span class="no">1</span>触发事件</h3>
       <div class="trigger">${esc(it.trigger_event)}

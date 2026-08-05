@@ -5,3 +5,5 @@ web/index.html
 data/queue_snapshots/
 __pycache__/
 *.pyc
+# 年报 PDF 下载缓存不入库（json 缓存保留，便于演示立即展示）
+data/financials/*_report.pdf

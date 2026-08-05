@@ -1,0 +1,26 @@
+{
+  "status": "ok",
+  "company": "东鹏饮料",
+  "report_year": "2026 半年报",
+  "source": {
+    "title": "东鹏饮料（集团）股份有限公司2026年半年度报告",
+    "url": "http://static.cninfo.com.cn/finalpage/2026-07-31/1225449594.PDF",
+    "publish_date": "2026-07-31"
+  },
+  "indicators": [
+    {
+      "name": "汇兑损益",
+      "value": "收益 22721.34 万元",
+      "note": "财务费用中的汇兑损益",
+      "page": 151
+    },
+    {
+      "name": "外币报表折算差额",
+      "value": "详见财报",
+      "note": "财报披露口径",
+      "page": 89
+    }
+  ],
+  "message": "",
+  "updated_at": "2026-08-05 08:58"
+}

@@ -39,6 +39,7 @@ def build_queue(date=None, out=None):
             "owner": o["owner"],
             "trigger_event": o["trigger_event"],
             "rule_hits": o["rule_hits"],
+            "biz": o.get("biz", {}),
             "publish_date": ann.get("publish_date", ""),
             "source": ann.get("source", ""),
             "evidence_url": ann.get("url", ""),

@@ -36,6 +36,32 @@ def load_allowlist(path):
     return by_code, by_name
 
 
+
+COUNTRIES = ["中国香港", "香港", "美国", "越南", "泰国", "新加坡", "德国", "日本",
+             "马来西亚", "印度尼西亚", "墨西哥", "巴西", "英国", "法国", "荷兰"]
+CURRENCIES = ["美元", "欧元", "港币", "日元", "英镑", "新加坡元", "人民币"]
+
+
+def infer_biz(title, tags):
+    """从公告标题与标签推断潜在业务（对外付款/对外收款/汇率避险/跨境结算）。"""
+    biz_type, biz_sub = "", ""
+    if "外汇与套保" in tags or any(k in title for k in ("套保", "套期保值", "衍生品", "远期", "期权", "掉期", "结售汇")):
+        biz_type, biz_sub = "汇率避险", "套保/衍生品管理汇率敞口"
+    elif any(k in title for k in ("对外投资", "设立", "增资", "收购", "境外投资", "子公司")):
+        biz_type, biz_sub = "对外付款", "境外投资或子公司出资"
+    if any(k in title for k in ("出口", "境外收入", "海外收入", "收汇", "销售")):
+        biz_type, biz_sub = "对外收款", "出口或境外收入"
+    if any(k in title for k in ("跨境", "贸易", "结算", "进口")):
+        biz_type, biz_sub = "跨境结算", "进出口贸易结算"
+    if not biz_type:
+        biz_type, biz_sub = "待判断", ""
+    country = next((c for c in COUNTRIES if c in title), "待核实")
+    currency = next((c for c in CURRENCIES if c in title), "待核实")
+    event_type = ("外汇与套保" if "外汇与套保" in tags
+                  else ("境外投资/子公司" if "境外投资/子公司" in tags else "外汇相关事件"))
+    return {"biz_type": biz_type, "biz_sub": biz_sub,
+            "event_type": event_type, "country": country, "currency": currency}
+
 def classify(title):
     tags = []
     if any(k in title for k in HEDGE_KEYWORDS):
@@ -113,6 +139,7 @@ def _build_opportunity(ann, name, code, city, tags, rule_hits, trigger, total, b
         "lifecycle": "new",
         "owner": None,
         "created_date": today.isoformat(),
+        "biz": infer_biz(ann.get("title", ""), tags),
     }
 
 

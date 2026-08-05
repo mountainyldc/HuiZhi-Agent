@@ -1,0 +1,621 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中国工商银行 · 外汇与国际业务商机雷达</title>
+<style>
+  :root {
+    --brand: #C8102E;
+    --brand-2: #E8483A;
+    --bg: #F5F5F7;
+    --card: #FFFFFF;
+    --line: #E5E5EA;
+    --ink: #1D1D1F;
+    --ink-2: #6E6E73;
+    --ink-3: #A0A0A8;
+    --blue: #2F6FED;    --blue-bg: #EAF2FF;
+    --purple: #7C5CFC;  --purple-bg: #F1EEFF;
+    --green: #1F9D63;   --green-bg: #E7F5EE;
+    --orange: #B26A00;  --orange-bg: #FFF6E5;
+    --red-bg: #FDEBED;
+    --shadow: 0 1px 3px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro SC", "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink); font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* 顶栏 */
+  header {
+    position: relative; z-index: 10; display: flex; align-items: center; gap: 16px;
+    padding: 0 24px; height: 60px;
+    background: rgba(255,255,255,.85); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .icbc {
+    background: linear-gradient(135deg, var(--brand-2), var(--brand)); color: #fff; font-weight: 800;
+    letter-spacing: 1px; padding: 6px 12px; font-size: 13px; white-space: nowrap; border-radius: 9px;
+    box-shadow: 0 4px 12px rgba(200,16,46,.25);
+  }
+  .brand .name { font-size: 16px; font-weight: 700; letter-spacing: .2px; }
+  .vline { width: 1px; height: 24px; background: var(--line); }
+  .page-title { font-size: 12.5px; color: var(--ink-3); letter-spacing: .5px; }
+  header .meta { margin-left: auto; display: flex; gap: 20px; font-size: 13px; color: var(--ink-2); }
+  header .meta b { color: var(--ink); font-weight: 600; }
+  /* KPI */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding: 20px 24px 0; }
+  .kpi {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 16px 18px; display: flex; align-items: center; gap: 14px;
+    box-shadow: var(--shadow);
+  }
+  .kpi .ico {
+    width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .kpi.r .ico { background: var(--red-bg); color: var(--brand); }
+  .kpi.b .ico { background: var(--blue-bg); color: var(--blue); }
+  .kpi.g .ico { background: var(--green-bg); color: var(--green); }
+  .kpi.o .ico { background: var(--orange-bg); color: var(--orange); }
+  .kpi .num { font-size: 26px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .kpi .lab { font-size: 12.5px; color: var(--ink-2); margin-top: 3px; }
+  /* 主区 */
+  main { display: flex; height: calc(100vh - 218px); padding: 16px 24px 24px; gap: 16px; }
+  #queue {
+    width: 430px; min-width: 350px; display: flex; flex-direction: column;
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .qhead { padding: 15px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; }
+  .qhead h2 { font-size: 15px; font-weight: 700; }
+  .qhead p { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+  #qlist { flex: 1; overflow-y: auto; padding: 8px; }
+  .qitem {
+    padding: 13px 14px; border-radius: 12px; cursor: pointer; margin-bottom: 4px;
+    border-left: 3px solid transparent; transition: background .12s ease;
+  }
+  .qitem:hover { background: #F7F7F9; }
+  .qitem.active { background: var(--blue-bg); border-left-color: var(--blue); }
+  .row1 { display: flex; align-items: center; gap: 8px; }
+  .rank { font-size: 12px; color: var(--ink-3); width: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .company { font-weight: 700; font-size: 15px; }
+  .city { font-size: 12px; color: var(--ink-3); }
+  .score { margin-left: auto; font-weight: 800; color: var(--ink); font-size: 16px; font-variant-numeric: tabular-nums; }
+  .score small { font-size: 11px; color: var(--ink-3); font-weight: 400; }
+  .qtitle {
+    font-size: 12.5px; color: var(--ink-2); margin: 6px 0; line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: #F0F0F2; color: var(--ink-2); }
+  .tag.t1 { background: var(--red-bg); color: var(--brand); }
+  .tag.t2 { background: var(--blue-bg); color: var(--blue); }
+  .tag.t3 { background: var(--purple-bg); color: var(--purple); }
+  .tag.t4 { background: var(--orange-bg); color: var(--orange); }
+  .src { font-size: 11px; color: var(--ink-3); margin-left: auto; white-space: nowrap; }
+  .bizchip {
+    font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 20px;
+    background: var(--green-bg); color: var(--green); margin-left: 6px; white-space: nowrap;
+  }
+  /* 详情 */
+  #detail { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 18px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; box-shadow: var(--shadow); }
+  .card h3 { font-size: 13px; color: var(--ink); font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .step {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 7px; font-size: 12px; font-weight: 800;
+    background: var(--ink); color: #fff; flex-shrink: 0;
+  }
+  .hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .name { font-size: 21px; font-weight: 800; letter-spacing: .2px; }
+  .sub { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .meta-chip { font-size: 11.5px; padding: 3px 10px; border-radius: 20px; background: #F0F0F2; color: var(--ink-2); }
+  .hero-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .gscore { text-align: right; }
+  .gscore .big { font-size: 34px; font-weight: 800; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+  .gscore .lbl { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+  .gbar { width: 150px; height: 5px; border-radius: 3px; background: #ECECEF; margin-top: 9px; margin-left: auto; overflow: hidden; }
+  .gbar i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--blue), #5B8DEF); }
+  .life { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .pill { font-size: 12px; padding: 3px 12px; border-radius: 20px; color: var(--ink-3); background: #F0F0F2; }
+  .pill.on.new { color: var(--green); background: var(--green-bg); font-weight: 600; }
+  .pill.on.verifying { color: var(--orange); background: var(--orange-bg); font-weight: 600; }
+  .pill.on.contacted { color: var(--blue); background: var(--blue-bg); font-weight: 600; }
+  .pill.on.invalid { color: var(--ink-3); background: #EEEEF0; }
+  .trigger { font-size: 13.5px; line-height: 1.75; color: var(--ink); }
+  .trigger .src-line { display: block; margin-top: 8px; font-size: 12px; color: var(--ink-3); }
+  .rule { display: inline-block; font-size: 11px; color: var(--blue); background: var(--blue-bg); padding: 3px 10px; margin-top: 10px; border-radius: 20px; }
+  /* 潜在业务判断 */
+  .bizgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .bizcard { background: #F7F7F9; border-radius: 12px; padding: 12px 14px; }
+  .bizcard .k { font-size: 11.5px; color: var(--ink-3); margin-bottom: 5px; }
+  .bizcard .v { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .llm-note {
+    margin-top: 12px; background: var(--purple-bg); border-radius: 12px; padding: 12px 14px;
+    font-size: 13px; line-height: 1.7; color: #4A3F8F;
+  }
+  .disclaimer { font-size: 11.5px; color: var(--ink-3); margin-top: 10px; line-height: 1.6; }
+  /* 年报数据 */
+  .fin-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .fin-link { font-size: 12.5px; color: var(--blue); text-decoration: none; font-weight: 600; }
+  .fin-link:hover { text-decoration: underline; }
+  .fin-update { margin-left: auto; }
+  .btn.sm {
+    border: 1px solid var(--line); background: var(--card); color: var(--ink-2);
+    padding: 5px 14px; font-size: 12px; border-radius: 8px; cursor: pointer;
+  }
+  .btn.sm:hover { border-color: var(--ink-3); color: var(--ink); }
+  .fin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .fin-item { background: #F7F7F9; border-radius: 12px; padding: 12px 14px; }
+  .fin-item .k { font-size: 11.5px; color: var(--ink-3); margin-bottom: 5px; }
+  .fin-item .v { font-size: 16px; font-weight: 800; color: var(--ink); }
+  .fin-item .n { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+  .fin-empty { font-size: 13px; color: var(--ink-2); padding: 6px 0; }
+  /* 证据 */
+  .kv { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 13px; color: var(--ink-2); margin-bottom: 12px; }
+  .kv span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kv b { color: var(--ink); font-weight: 600; }
+  .evlink { color: var(--blue); text-decoration: none; font-weight: 600; }
+  .evlink:hover { text-decoration: underline; }
+  .evrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .evbtn {
+    display: inline-block; border: 1px solid var(--blue); color: var(--blue);
+    padding: 7px 18px; font-size: 13px; font-weight: 700; text-decoration: none; border-radius: 10px;
+    transition: background .12s ease;
+  }
+  .evbtn:hover { background: var(--blue-bg); }
+  .evbtn.alt { border-color: var(--ink-3); color: var(--ink-2); }
+  .evnote { font-size: 12px; color: var(--ink-3); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .two .kv { grid-template-columns: 1fr; }
+  .factlist { list-style: none; }
+  .factlist li { font-size: 13px; line-height: 1.75; padding-left: 16px; position: relative; color: var(--ink-2); }
+  .factlist.known li::before { content: "●"; position: absolute; left: 0; font-size: 8px; color: var(--green); top: 7px; }
+  .factlist.unknown li::before { content: "○"; position: absolute; left: 0; font-size: 10px; color: var(--orange); top: 5px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-row .bk { width: 88px; font-size: 12.5px; color: var(--ink-2); }
+  .bar { flex: 1; height: 6px; border-radius: 3px; background: #ECECEF; overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--blue), #5B8DEF); }
+  .bar-row .bv { width: 32px; text-align: right; font-size: 12.5px; font-weight: 700; color: var(--ink); }
+  .qlist { padding-left: 18px; }
+  .qlist li { font-size: 13px; line-height: 1.85; color: var(--ink-2); }
+  .btns { display: flex; gap: 10px; }
+  .btn {
+    border: 1px solid var(--line); background: var(--card); color: var(--ink-2);
+    padding: 9px 22px; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 10px;
+    transition: all .12s ease;
+  }
+  .btn.claim {
+    background: linear-gradient(135deg, var(--brand-2), var(--brand)); border-color: transparent; color: #fff;
+    box-shadow: 0 4px 14px rgba(200,16,46,.25);
+  }
+  .btn.claim:hover { filter: brightness(1.06); }
+  .btn.invalid:hover { border-color: var(--ink-3); color: var(--ink); }
+  .foot { font-size: 12px; color: var(--ink-3); margin-top: 12px; }
+  footer {
+    position: relative; z-index: 5; display: flex; gap: 22px; padding: 10px 24px; font-size: 12px; color: var(--ink-3);
+    background: rgba(255,255,255,.7); backdrop-filter: blur(12px); border-top: 1px solid var(--line);
+  }
+  .empty { padding: 60px; text-align: center; color: var(--ink-3); }
+  #toast {
+    position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(16px); opacity: 0;
+    background: #2C2C2E; color: #fff; padding: 11px 22px; font-size: 13px; border-radius: 12px; z-index: 99;
+    transition: all .25s ease; box-shadow: 0 8px 30px rgba(0,0,0,.25);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (max-width: 1100px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .two { grid-template-columns: 1fr; }
+    .kv { grid-template-columns: 1fr; }
+    .bizgrid { grid-template-columns: repeat(2, 1fr); }
+    #queue { width: 360px; }
+  }
+
+  /* 主区布局（含 Tabs 与双视图） */
+  main { padding: 16px 24px 24px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab { border: none; background: transparent; font-size: 14px; font-weight: 600; color: var(--ink-3); padding: 9px 16px; border-radius: 10px; cursor: pointer; transition: all .18s ease; }
+  .tab:hover { color: var(--ink); background: rgba(0,0,0,.04); }
+  .tab.active { background: var(--ink); color: #fff; }
+  .hidden { display: none !important; }
+  #viewRadar { display: flex; gap: 16px; height: calc(100vh - 290px); min-height: 420px; }
+  /* 资讯中心 */
+  .news-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 20px 24px; }
+  .news-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+  .news-top h2 { font-size: 19px; font-weight: 700; }
+  .muted { color: var(--ink-3); font-size: 12.5px; margin-top: 4px; }
+  .news-filters { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .search-box { position: relative; flex: 1; min-width: 240px; }
+  .search-ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; opacity: .55; }
+  #newsQ { width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 9px 12px 9px 34px; font-size: 13.5px; outline: none; transition: all .18s ease; }
+  #newsQ:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px var(--blue-bg); }
+  #newsDays { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 8px 12px; font-size: 13px; color: var(--ink-2); outline: none; }
+  .src-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .src-chip { border: 1px solid var(--line); background: var(--card); color: var(--ink-2); font-size: 12px; padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all .18s ease; }
+  .src-chip:hover { border-color: var(--ink-3); }
+  .src-chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--line); }
+  .news-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .news-table th { text-align: left; font-size: 11.5px; color: var(--ink-3); font-weight: 600; padding: 10px 14px; background: var(--bg); border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .news-table td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .news-table tbody tr:last-child td { border-bottom: none; }
+  .news-table tbody tr:hover td { background: #FAFAFC; }
+  .td-date { white-space: nowrap; color: var(--ink-3); font-size: 12.5px; }
+  .td-title a { color: var(--ink); font-weight: 600; text-decoration: none; }
+  .td-title a:hover { color: var(--blue); }
+  .td-sum { color: var(--ink-3); font-size: 12px; margin-top: 3px; line-height: 1.5; max-width: 520px; }
+  .td-src { white-space: nowrap; color: var(--ink-2); }
+  .td-co { font-weight: 600; white-space: nowrap; }
+  .td-region { color: var(--ink-2); white-space: nowrap; }
+  .eye { text-decoration: none; font-size: 15px; opacity: .6; }
+  .eye:hover { opacity: 1; }
+  .news-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .page-btns { display: flex; gap: 8px; }
+  .btn.sm:disabled { opacity: .4; cursor: not-allowed; }
+  .fin-empty { color: var(--ink-3); text-align: center; padding: 26px 0; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="icbc">ICBC 中国工商银行</span>
+    <div class="name">外汇与国际业务商机雷达</div>
+    <span class="vline"></span>
+    <span class="page-title">Foreign Exchange Lead Radar · 深圳分行</span>
+  </div>
+  <div class="meta">
+    <span>地区 <b>广东</b></span>
+    <span id="hdrDate"></span>
+    <span>用户 <b>叶霖德</b></span>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="kpi r"><div class="ico">📡</div><div><div class="num" id="kTotal">0</div><div class="lab">今日商机线索</div></div></div>
+  <div class="kpi b"><div class="ico">🎯</div><div><div class="num" id="kAvg">0</div><div class="lab">平均商机分</div></div></div>
+  <div class="kpi o"><div class="ico">⏳</div><div><div class="num" id="kVerifying">0</div><div class="lab">待核实</div></div></div>
+  <div class="kpi g"><div class="ico">✅</div><div><div class="num" id="kClaimed">0</div><div class="lab">已认领</div></div></div>
+</div>
+
+<main>
+  <div class="tabs">
+    <button class="tab active" data-v="radar" onclick="switchView('radar')">商机雷达</button>
+    <button class="tab" data-v="news" onclick="switchView('news')">资讯中心</button>
+  </div>
+  <div id="viewRadar">
+    <div id="queue">
+      <div class="qhead"><h2>今日商机队列</h2><p id="qsub"></p></div>
+      <div id="qlist"></div>
+    </div>
+    <div id="detail"></div>
+  </div>
+  <div id="viewNews" class="hidden">
+    <div class="news-card">
+      <div class="news-top">
+        <div>
+          <h2>资讯中心</h2>
+          <p id="newsSub" class="muted"></p>
+        </div>
+        <button class="btn sm" onclick="updateNews()">↻ 更新数据</button>
+      </div>
+      <div class="news-filters">
+        <div class="search-box">
+          <span class="search-ico">&#128269;</span>
+          <input id="newsQ" placeholder="搜索企业、标题或正文" oninput="debounceNews()" />
+        </div>
+        <select id="newsDays" onchange="loadNews()">
+          <option value="7">近 7 天</option>
+          <option value="30">近 30 天</option>
+          <option value="45" selected>近 45 天</option>
+          <option value="90">近 90 天</option>
+          <option value="365">近一年</option>
+        </select>
+      </div>
+      <div id="newsSources" class="src-chips"></div>
+      <div class="table-wrap">
+        <table class="news-table">
+          <thead>
+            <tr><th>日期</th><th>资讯</th><th>来源</th><th>企业</th><th>地区</th><th></th></tr>
+          </thead>
+          <tbody id="newsBody"></tbody>
+        </table>
+      </div>
+      <div class="news-foot">
+        <span id="newsPageInfo" class="muted"></span>
+        <div class="page-btns">
+          <button class="btn sm" id="newsPrev" onclick="newsPage(-1)">&#8249; 上一页</button>
+          <button class="btn sm" id="newsNext" onclick="newsPage(1)">下一页 &#8250;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span>AI 引擎：Pi Coding Agent + DeepSeek 复核</span>
+  <span>数据源：巨潮公告 · 新浪 · 东财 · 年报财务</span>
+  <span id="genTime"></span>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+const data = __SNAPSHOT_JSON__; const items = Array.isArray(data) ? data : (data.items || []);
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function tagClass(t){
+  if (t.includes("外汇") || t.includes("套保")) return "t1";
+  if (t.includes("境外投资") || t.includes("子公司")) return "t2";
+  if (t.includes("境外市场") || t.includes("海外")) return "t3";
+  if (t.includes("舆情")) return "t4";
+  return "";
+}
+function tagHtml(tags){ return (tags||[]).map(t=>`<span class="tag ${tagClass(t)}">${esc(t)}</span>`).join(""); }
+function scoreBars(b){
+  if(!b) return "";
+  const names = {event_credibility:"事件可信度", capital_scale:"资金体量", timeliness:"时效性", coverage:"我行覆盖度", info_completeness:"信息完整度"};
+  return Object.entries(b).map(([k,v])=>`<div class="bar-row"><span class="bk">${esc(names[k]||k)}</span><div class="bar"><i style="width:${v}%"></i></div><span class="bv">${v}</span></div>`).join("");
+}
+function evHref(it, evidence){
+  if(it.evidence_url) return it.evidence_url;
+  const q = encodeURIComponent((it.company_name||"")+" "+(evidence.doc_title||it.title||""));
+  return "https://www.baidu.com/s?wd="+q;
+}
+function evDocLink(it, evidence){
+  const title = evidence.doc_title || it.title || "（无标题）";
+  return `<a class="evlink" href="${evHref(it,evidence)}" target="_blank" rel="noopener">${esc(title)}</a>`;
+}
+function evLabel(it){ return it.evidence_url ? "查看原文" : "搜索相关报道"; }
+function renderList(activeId){
+  document.getElementById("qlist").innerHTML = items.map(it=>`
+    <div class="qitem ${it.opportunity_id===activeId?"active":""}" onclick="showDetail('${it.opportunity_id}')">
+      <div class="row1">
+        <span class="rank">${String(it.rank==null?"":it.rank).padStart(2,"0")}</span>
+        <span class="company">${esc(it.company_name)}</span>
+        <span class="city">${esc(it.city)}</span>
+        ${(it.biz||{}).biz_type?`<span class="bizchip">${esc((it.biz||{}).biz_type)}</span>`:""}
+        <span class="score">${it.score}<small> 分</small></span>
+      </div>
+      <div class="qtitle">${esc(it.title)}</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="tags">${tagHtml(it.tags.slice(0,2))}</span>
+        <span class="src">${esc(it.source||"")}</span>
+      </div>
+    </div>`).join("");
+  const newCount = items.filter(i=>i.lifecycle==="new").length;
+  document.getElementById("qsub").textContent = items.length ? `${items.length} 条 · 新发现 ${newCount}` : "";
+}
+async function loadFinancials(company){
+  const box = document.getElementById("finBody");
+  if(!box) return;
+  box.innerHTML = `<div class="fin-empty">正在查询年报数据…</div>`;
+  try{
+    const r = await fetch(`/financials?company=${encodeURIComponent(company)}`, { signal: AbortSignal.timeout(20000) });
+    const j = await r.json();
+    box.innerHTML = renderFinancials(j);
+  }catch(e){
+    box.innerHTML = `<div class="fin-empty">年报数据获取失败，请点击「更新」重试。</div>`;
+  }
+}
+function renderFinancials(j){
+  const src = j.source || {};
+  const head = `<div class="fin-head">
+      <span style="font-weight:700">${j.report_year||"最新年报"}</span>
+      ${src.url?`<a class="fin-link" href="${esc(src.url)}" target="_blank" rel="noopener">${esc(src.title||"查看年报")} ↗</a>`:""}
+      ${j.updated_at?`<span style="font-size:11.5px;color:var(--ink-3)">更新于 ${esc(j.updated_at)}</span>`:""}
+      <button class="btn sm fin-update" onclick="updateFinancials('${esc(j.company||"")}')">更新</button>
+    </div>`;
+  if(!j.indicators || !j.indicators.length){
+    return head + `<div class="fin-empty">${esc(j.message||"未获取到年报外汇相关数据。")}</div>`;
+  }
+  const cards = j.indicators.map(it=>`
+    <div class="fin-item"><div class="k">${esc(it.name)}</div><div class="v">${esc(it.value)}</div>
+      <div class="n">${esc(it.note||"")}${it.page?` · 年报第 ${it.page} 页`:""}</div></div>`).join("");
+  return head + `<div class="fin-grid">${cards}</div>`;
+}
+async function updateFinancials(company){
+  if(!company) return;
+  toast("正在抓取年报数据…");
+  const box = document.getElementById("finBody");
+  if(box) box.innerHTML = `<div class="fin-empty">正在抓取年报（下载 PDF + 解析），可能需要 1-2 分钟…</div>`;
+  try{
+    const r = await fetch("/financials/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({company})});
+    const j = await r.json();
+    if(box) box.innerHTML = renderFinancials(j);
+    toast(j.message||"已更新");
+  }catch(e){
+    if(box) box.innerHTML = `<div class="fin-empty">抓取失败：${esc(String(e))}</div>`;
+    toast("年报抓取失败");
+  }
+}
+function showDetail(id){
+  const it = items.find(x=>x.opportunity_id===id); if(!it) return;
+  renderList(id);
+  const rev = it.review || {};
+  const evidence = rev.evidence_summary || {};
+  const lifeMap = {new:"新发现", verifying:"待核实", contacted:"已联系", invalid:"无效"};
+  const lifeKey = {new:"new", verifying:"verifying", contacted:"contacted", invalid:"invalid"};
+  const lifeOrder = ["new","verifying","contacted"];
+  const scorePct = Math.max(0, Math.min(100, it.score||0));
+  const b = it.biz || {};
+  const biz = {
+    type: b.biz_type || "待判断",
+    sub: b.biz_sub || "",
+    event: b.event_type || it.rule_hits?.[0] || "外汇相关事件",
+    country: b.country || "待核实",
+    currency: b.currency || "待核实",
+  };
+  document.getElementById("detail").innerHTML = `
+    <div class="card">
+      <div class="hero">
+        <div>
+          <div class="name">${esc(it.company_name)} <span style="font-size:13px;color:var(--ink-3);font-weight:400">（${esc(it.city)}）</span></div>
+          <div class="sub">
+            <span class="meta-chip">上市公司</span>
+            <span class="meta-chip">注册地 ${esc(it.city)}</span>
+            <span class="meta-chip">属地由巨潮公司概况核验</span>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn invalid" onclick="action('${it.opportunity_id}','invalid')">标记无效</button>
+          <button class="btn claim" onclick="action('${it.opportunity_id}','claim')">确认有效</button>
+        </div>
+      </div>
+      <div class="life">${lifeOrder.map(s=>`<span class="pill ${it.lifecycle===s?"on "+lifeKey[s]:""}">${lifeMap[s]}</span>`).join("")}
+        ${it.lifecycle==="invalid"?`<span class="pill on invalid">无效</span>`:""}</div>
+    </div>
+
+    <div class="card"><h3><span class="step">1</span>触发事件</h3>
+      <div class="trigger">${esc(it.trigger_event)}
+        <span class="src-line">来源：${esc(evidence.source||it.source||"")} · ${esc(evidence.publish_time||it.publish_date||"")} · <a class="evlink" href="${evHref(it,evidence)}" target="_blank" rel="noopener">依据[1] 查看原文 ↗</a></span>
+      </div>
+      <div class="rule">规则命中：${(it.rule_hits||[]).join(" · ")}</div>
+    </div>
+
+    <div class="card"><h3><span class="step">2</span>潜在业务判断</h3>
+      <div class="bizgrid">
+        <div class="bizcard"><div class="k">潜在业务</div><div class="v">${esc(biz.type)}</div><div style="font-size:11px;color:var(--ink-3);margin-top:3px">${esc(biz.sub)}</div></div>
+        <div class="bizcard"><div class="k">事件类型</div><div class="v">${esc(biz.event)}</div></div>
+        <div class="bizcard"><div class="k">国家/地区</div><div class="v">${esc(biz.country)}</div></div>
+        <div class="bizcard"><div class="k">币种</div><div class="v">${esc(biz.currency)}</div></div>
+      </div>
+      ${rev.review_note?`<div class="llm-note">🤖 大模型判断：${esc(rev.review_note)}</div>`:""}
+      <div class="disclaimer">该判断表示值得客户经理核实，不代表企业已经确认业务需求。判断仅基于当前公开事件。</div>
+    </div>
+
+    <div class="card"><h3><span class="step">3</span>最新年报数据</h3>
+      <div id="finBody"></div>
+    </div>
+
+    <div class="card"><h3><span class="step">4</span>建议沟通重点</h3>
+      <ol class="qlist">${(rev.suggested_questions||[]).map(q=>`<li>${esc(q)}</li>`).join("")||"<li>（暂无）</li>"}</ol>
+    </div>
+
+    <div class="card"><h3><span class="step">5</span>判断依据</h3>
+      <div class="kv">
+        <span><b>文档：</b>${evDocLink(it,evidence)}</span>
+        <span><b>来源：</b>${esc(evidence.source||it.source||"")}</span>
+        <span><b>时间：</b>${esc(evidence.publish_time||it.publish_date||"")}</span>
+      </div>
+      <div class="evrow">
+        <a class="evbtn ${it.evidence_url?"":"alt"}" href="${evHref(it,evidence)}" target="_blank" rel="noopener">${evLabel(it)} ↗</a>
+        <span class="evnote">${it.evidence_url?"点击打开公告 / 快讯原文":"未收录直接原文，点击搜索相关报道"}</span>
+      </div>
+      <div style="font-size:12px;color:var(--ink-3);margin-top:10px">${esc(rev.review_note||"评分由规则引擎按 5 维加权计算")}</div>
+    </div>
+
+    <div class="card"><h3><span class="step">6</span>商机评分</h3>
+      ${scoreBars(it.score_breakdown)}
+      <div style="font-size:12px;color:var(--ink-3);margin-top:8px">${rev.reviewed_score?`大模型复核 ${rev.reviewed_score} 分`:"待大模型复核"} · ${esc(rev.review_note||"评分由规则引擎按 5 维加权计算")}</div>
+      <div class="foot">认领后将进入线索管理，由您跟进${it.owner?`（当前负责人：${esc(it.owner)}）`:""}</div>
+    </div>`;
+  loadFinancials(it.company_name);
+}
+async function action(id, act){
+  const it = items.find(x=>x.opportunity_id===id);
+  try{
+    const r = await fetch("/action",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({opportunity_id:id,action:act,owner:"叶霖德"})});
+    if(!r.ok) throw new Error("http "+r.status);
+    const j = await r.json();
+    toast(j.message||"已更新");
+    location.reload();
+  }catch(e){
+    it.lifecycle = act==="claim" ? "verifying" : "invalid";
+    if(act==="claim") it.owner = "叶霖德";
+    toast("静态模式：状态仅本次会话生效（启动 serve.py 可持久化）");
+    showDetail(id);
+  }
+}
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2600);
+}
+function renderKPIs(){
+  document.getElementById("kTotal").textContent = items.length;
+  if(items.length){
+    const avg = Math.round(items.reduce((s,i)=>s+i.score,0)/items.length);
+    document.getElementById("kAvg").textContent = avg;
+  }
+  document.getElementById("kVerifying").textContent = items.filter(i=>i.lifecycle==="verifying").length;
+  document.getElementById("kClaimed").textContent = items.filter(i=>i.owner).length;
+}
+const _d = new Date();
+document.getElementById("hdrDate").textContent = "日期 " + _d.getFullYear() + "-" + String(_d.getMonth()+1).padStart(2,"0") + "-" + String(_d.getDate()).padStart(2,"0");
+document.getElementById("genTime").textContent = "生成时间 " + new Date().toLocaleString("zh-CN");
+renderKPIs();
+renderList(null);
+if(items.length) showDetail(items[0].opportunity_id);
+
+/* ---- 资讯中心 ---- */
+const newsState = { q:"", source:"", days:45, page:1, pageSize:50, total:0, sources:[] };
+let newsTimer = null;
+function debounceNews(){ clearTimeout(newsTimer); newsTimer = setTimeout(loadNews, 350); }
+function switchView(v){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active", b.dataset.v===v));
+  document.getElementById("viewRadar").classList.toggle("hidden", v!=="radar");
+  document.getElementById("viewNews").classList.toggle("hidden", v!=="news");
+  if(v==="news") loadNews();
+}
+async function loadNews(){
+  const box = document.getElementById("newsBody"); if(!box) return;
+  newsState.q = document.getElementById("newsQ").value.trim();
+  newsState.days = parseInt(document.getElementById("newsDays").value || "45");
+  box.innerHTML = `<tr><td colspan="6" class="fin-empty">加载中…</td></tr>`;
+  try{
+    const p = new URLSearchParams({ q: newsState.q, days: newsState.days, source: newsState.source, page: newsState.page, page_size: newsState.pageSize });
+    const r = await fetch("/news?"+p.toString());
+    if(!r.ok) throw new Error("http "+r.status);
+    const j = await r.json();
+    renderNews(j);
+  }catch(e){
+    box.innerHTML = `<tr><td colspan="6" class="fin-empty">加载失败：${esc(String(e))}</td></tr>`;
+  }
+}
+function renderNews(j){
+  const items = j.items||[]; newsState.total = j.total||0; newsState.sources = j.sources||[];
+  document.getElementById("newsSub").textContent = `${newsState.total} 条 · ${newsState.sources.length} 个来源`;
+  document.getElementById("newsBody").innerHTML = items.map(it=>`
+    <tr>
+      <td class="td-date">${esc(it.publish_date||"—")}</td>
+      <td class="td-title">${it.url?`<a href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.title)}</a>`:`<span>${esc(it.title)}</span>`}
+        ${it.raw_text?`<div class="td-sum">${esc(String(it.raw_text).slice(0,90))}</div>`:""}
+      </td>
+      <td class="td-src">${esc(it.source||"")}</td>
+      <td class="td-co">${esc(it.stock_name||"—")}</td>
+      <td class="td-region">${esc(it.region||"—")}</td>
+      <td>${it.url?`<a class="eye" href="${esc(it.url)}" target="_blank" rel="noopener" title="查看原文">&#128065;</a>`:""}</td>
+    </tr>`).join("") || `<tr><td colspan="6" class="fin-empty">没有符合条件的资讯</td></tr>`;
+  const all = [{source:"", label:"全部来源", count:newsState.total}].concat((newsState.sources||[]).map(s=>({source:s.source, label:s.source, count:s.count})));
+  document.getElementById("newsSources").innerHTML = all.map(s=>
+    `<button class="src-chip ${newsState.source===s.source?"on":""}" onclick="newsSource('${esc(s.source)}')">${esc(s.label)}<span style="opacity:.55;margin-left:6px;font-size:11px">${s.count}</span></button>`).join("");
+  const pageSize = newsState.pageSize, page = newsState.page, total = newsState.total;
+  const from = total? (page-1)*pageSize+1 : 0;
+  const to = Math.min(page*pageSize, total);
+  document.getElementById("newsPageInfo").textContent = `${from}-${to} / ${total}`;
+  document.getElementById("newsPrev").disabled = page<=1;
+  document.getElementById("newsNext").disabled = to>=total;
+}
+function newsSource(src){ newsState.source = src; newsState.page = 1; loadNews(); }
+function newsPage(d){ newsState.page = Math.max(1, newsState.page + d); loadNews(); }
+async function updateNews(){
+  const btn = document.querySelector(".news-top .btn");
+  if(btn){ btn.disabled = true; btn.textContent = "更新中…"; }
+  toast("正在刷新数据（抓取+筛选+渲染）…");
+  try{
+    const r = await fetch("/news/update", { method:"POST" });
+    const j = await r.json();
+    toast(j.message||"已更新");
+    await loadNews();
+  }catch(e){
+    toast("更新失败：" + String(e));
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = "↻ 更新数据"; }
+  }
+}
+</script>
+</body>
+</html>

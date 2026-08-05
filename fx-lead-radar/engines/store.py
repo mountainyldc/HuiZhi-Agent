@@ -35,7 +35,8 @@ def init_db(db_path=None):
             company_name TEXT, city TEXT,
             tags TEXT, trigger_event TEXT, rule_hits TEXT,
             score REAL, score_breakdown TEXT,
-            lifecycle TEXT, owner TEXT, created_date TEXT
+            lifecycle TEXT, owner TEXT, created_date TEXT,
+            biz TEXT
         );
         CREATE TABLE IF NOT EXISTS reviews(
             opportunity_id TEXT PRIMARY KEY,
@@ -43,7 +44,11 @@ def init_db(db_path=None):
         );
         """
     )
-    conn.commit()
+    try:
+        conn.execute("ALTER TABLE opportunities ADD COLUMN biz TEXT")
+        conn.commit()
+    except Exception:
+        pass  # 列已存在
     conn.close()
 
 
@@ -82,6 +87,52 @@ def list_announcements():
     return out
 
 
+# ---------- 资讯中心 ----------
+
+def search_announcements(q="", source="", days=45, page=1, page_size=50):
+    """资讯中心：按关键词/来源/时间窗口分页查询公告与舆情。"""
+    import datetime
+    conn = _conn()
+    where, args = [], []
+    if q:
+        like = f"%{q}%"
+        where.append("(title LIKE ? OR stock_name LIKE ? OR COALESCE(raw_text,'') LIKE ?)")
+        args += [like, like, like]
+    if source:
+        where.append("source LIKE ?")
+        args.append(source + "%")  # 来源用短前缀匹配（如 巨潮资讯）
+    if days:
+        cutoff = (datetime.date.today() - datetime.timedelta(days=days)).isoformat()
+        where.append("COALESCE(publish_date,'') >= ?")
+        args.append(cutoff)
+    cond = (" WHERE " + " AND ".join(where)) if where else ""
+    total = conn.execute("SELECT COUNT(*) FROM announcements" + cond, args).fetchone()[0]
+    rows = conn.execute(
+        "SELECT * FROM announcements" + cond
+        + " ORDER BY publish_date DESC, id DESC LIMIT ? OFFSET ?",
+        args + [page_size, (page - 1) * page_size],
+    ).fetchall()
+    src_rows = conn.execute(
+        """SELECT CASE WHEN instr(source,'·')>0 THEN substr(source,1,instr(source,'·')-1)
+                       ELSE source END AS src, COUNT(*) c
+           FROM announcements GROUP BY src ORDER BY c DESC"""
+    ).fetchall()
+    conn.close()
+    items = []
+    for r in rows:
+        d = dict(r)
+        d["keywords_hit"] = json.loads(d["keywords_hit"] or "[]")
+        d["region"] = d.pop("region_hint", "") or ""
+        items.append(d)
+    return {
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "sources": [{"source": s["src"], "count": s["c"]} for s in src_rows],
+        "items": items,
+    }
+
+
 # ---------- 商机 ----------
 
 def insert_opportunity(opp):
@@ -89,8 +140,8 @@ def insert_opportunity(opp):
     conn.execute(
         """INSERT OR REPLACE INTO opportunities
            (id, announcement_id, company_name, city, tags, trigger_event,
-            rule_hits, score, score_breakdown, lifecycle, owner, created_date)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+            rule_hits, score, score_breakdown, lifecycle, owner, created_date, biz)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             opp["id"], opp.get("announcement_id"), opp["company_name"],
             opp.get("city"), json.dumps(opp.get("tags", []), ensure_ascii=False),
@@ -100,6 +151,7 @@ def insert_opportunity(opp):
             json.dumps(opp.get("score_breakdown", {}), ensure_ascii=False),
             opp.get("lifecycle", "new"), opp.get("owner"),
             opp.get("created_date"),
+            json.dumps(opp.get("biz", {}), ensure_ascii=False),
         ),
     )
     conn.commit()
@@ -122,6 +174,7 @@ def list_opportunities(lifecycle=None, db_path=None):
         d["tags"] = json.loads(d["tags"] or "[]")
         d["rule_hits"] = json.loads(d["rule_hits"] or "[]")
         d["score_breakdown"] = json.loads(d["score_breakdown"] or "{}")
+        d["biz"] = json.loads(d["biz"] or "{}")
         out.append(d)
     return out
 
@@ -136,6 +189,7 @@ def get_opportunity(opp_id):
     d["tags"] = json.loads(d["tags"] or "[]")
     d["rule_hits"] = json.loads(d["rule_hits"] or "[]")
     d["score_breakdown"] = json.loads(d["score_breakdown"] or "{}")
+    d["biz"] = json.loads(d["biz"] or "{}")
     return d
 
 

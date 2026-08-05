@@ -1,18 +1,62 @@
-"""轻量演示服务：静态页 + 认领/标记无效持久化。
+"""轻量演示服务：静态页 + 认领/标记无效持久化 + 资讯中心 + 年报数据。
 
 用法:
   python serve.py [--port 8000]
   浏览器打开 http://127.0.0.1:8000
+
+启动时若数据库为空，会自动用 data/crawled 下的数据重建商机队列，clone 即用。
 """
 import argparse
 import json
 import os
+import subprocess
+import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from common import project_path
 import store
 from build_queue import build_queue
 from render_web import render
+import fetch_financials
+
+
+def _ensure_seeded():
+    """数据库为空时，用已有 crawled 数据重建公告/商机并渲染页面。"""
+    n = len(store.list_announcements())
+    if n > 0:
+        return False
+    print("[info] 数据库为空，自动重建（rule_screen -> build_queue -> render）...")
+    from rule_screen import rule_screen
+    opps = rule_screen()
+    print(f"[info] 重建商机 {len(opps)} 条")
+    build_queue()
+    render()
+    return True
+
+
+def _run_pipeline():
+    """更新数据：依次跑爬虫(含样例回退) -> 规则筛选 -> 队列 -> 渲染。返回 {script: ok/fail}。"""
+    results = {}
+    for script in ("crawl_cninfo.py", "sina_news.py", "eastmoney_news.py"):
+        try:
+            r = subprocess.run(
+                [sys.executable, project_path("engines", script)],
+                cwd=project_path(), timeout=240,
+            )
+            results[script] = "ok" if r.returncode == 0 else "fail"
+        except Exception:
+            results[script] = "fail"
+    try:
+        r = subprocess.run(
+            [sys.executable, project_path("engines", "rule_screen.py"), "--reset"],
+            cwd=project_path(), timeout=120,
+        )
+        results["rule_screen"] = "ok" if r.returncode == 0 else "fail"
+    except Exception:
+        results["rule_screen"] = "fail"
+    build_queue()
+    render()
+    return results
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -31,6 +75,31 @@ class Handler(BaseHTTPRequestHandler):
                 render()
             with open(html_path, "rb") as f:
                 self._send(200, f.read(), "text/html; charset=utf-8")
+        elif self.path.startswith("/financials"):
+            from urllib.parse import parse_qs, urlparse
+            qs = parse_qs(urlparse(self.path).query)
+            company = (qs.get("company") or [""])[0]
+            data = fetch_financials.fetch_financials(company) if company else {"status": "no_report", "message": "缺少 company 参数"}
+            self._send(200, data)
+        elif self.path.startswith("/news"):
+            from urllib.parse import parse_qs, urlparse
+            qs = parse_qs(urlparse(self.path).query)
+            q = (qs.get("q") or [""])[0]
+            source = (qs.get("source") or [""])[0]
+            try:
+                days = int((qs.get("days") or ["45"])[0])
+            except ValueError:
+                days = 45
+            try:
+                page = max(1, int((qs.get("page") or ["1"])[0]))
+            except ValueError:
+                page = 1
+            try:
+                page_size = min(100, max(5, int((qs.get("page_size") or ["50"])[0])))
+            except ValueError:
+                page_size = 50
+            data = store.search_announcements(q=q, source=source, days=days, page=page, page_size=page_size)
+            self._send(200, data)
         elif self.path == "/queue.json":
             snap_dir = project_path("data/queue_snapshots")
             files = sorted(f for f in os.listdir(snap_dir) if f.endswith(".json"))
@@ -40,6 +109,30 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, {"error": "not found"})
 
     def do_POST(self):
+        if self.path == "/financials/update":
+            n = int(self.headers.get("Content-Length", 0))
+            body = json.loads(self.rfile.read(n).decode("utf-8"))
+            company = body.get("company", "")
+            try:
+                data = fetch_financials.fetch_financials(company, force=True)
+                data["message"] = data.get("message") or "已更新"
+                self._send(200, data)
+            except Exception as exc:
+                self._send(500, {"status": "error", "message": f"抓取失败：{exc}"})
+            return
+        if self.path == "/news/update":
+            try:
+                results = _run_pipeline()
+                ok = all(v == "ok" for v in results.values())
+                self._send(200, {
+                    "ok": ok,
+                    "message": "数据已更新（爬虫+筛选+队列+页面已重建）" if ok
+                              else f"部分更新（{results}）",
+                    "results": results,
+                })
+            except Exception as exc:
+                self._send(500, {"error": f"更新失败：{exc}"})
+            return
         if self.path != "/action":
             self._send(404, {"error": "not found"})
             return
@@ -72,6 +165,7 @@ def main():
     ap.add_argument("--port", type=int, default=8000)
     args = ap.parse_args()
     store.init_db()
+    _ensure_seeded()
     print(f"[info] 商机雷达演示服务: http://127.0.0.1:{args.port}")
     ThreadingHTTPServer(("127.0.0.1", args.port), Handler).serve_forever()
 

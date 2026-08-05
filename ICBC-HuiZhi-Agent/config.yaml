@@ -34,3 +34,17 @@ web:
 
 store:
   db_path: data/db/fx_radar.db
+rag:
+  embedding:
+    provider: dashscope
+    base_url: https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings
+    api_key_env: DASHSCOPE_API_KEY
+    model: text-embedding-v4
+    dimension: 1024
+    batch_size: 10
+    chunk_size: 800
+    chunk_overlap: 120
+  llm:
+    base_url: https://api.deepseek.com
+    api_key_env: DEEPSEEK_API_KEY
+    model: deepseek-chat

@@ -246,6 +246,73 @@ const startServerTool = {
   },
 };
 
+
+function runRagAnswer(args: string[], ed: string) {
+  const out = runPython("rag_answer.py", args, ed);
+  if (out.isError) return out;
+  try {
+    const parsed = JSON.parse(out.content[0].text);
+    const evLines = (parsed.evidence || [])
+      .map((e: any, i: number) => `[来源${i + 1}] ${e.company} | ${e.publish_date} | ${e.title}\n    ${e.url}`)
+      .join("\n");
+    const head = parsed.company ? `公司：${parsed.company}\n\n` : "";
+    return { content: [{ type: "text", text: `${head}${parsed.answer}\n\n参考证据：\n${evLines}` }], isError: false };
+  } catch {
+    return { content: [{ type: "text", text: out.content[0].text }], isError: false };
+  }
+}
+
+const analyzeCompanyTool = {
+  name: "analyze_company",
+  label: "单公司深度分析",
+  description:
+    "对指定上市公司做外汇需求深度分析：从公告/年报语料中混合检索证据（FTS5 BM25 + 向量），" +
+    "再交给 DeepSeek 生成带 [来源N] 引用角标的分析报告（外汇风险敞口、套保现状、合作机会、拜访建议）。" +
+    "适用问题：'帮我分析东鹏饮料的外汇需求' '比亚迪的外汇风险敞口如何'。",
+  promptSnippet: "分析某家公司的外汇需求与业务机会",
+  promptGuidelines: [
+    "参数 company 必填（公司全名或简称）",
+    "question 可选，默认'分析该公司外汇需求与潜在业务机会'",
+    "回答自带 [来源N] 引用，可追溯原文链接",
+  ],
+  parameters: Type.Object({
+    company: Type.String({ description: "公司名称，如：东鹏饮料、比亚迪" }),
+    question: Type.Optional(Type.String({ description: "具体问题，默认分析外汇需求与业务机会" })),
+    top: Type.Optional(Type.Integer({ description: "检索证据条数，默认5" })),
+  }),
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    const ed = resolveEnginesForCwd(ctx?.cwd);
+    const q = params.question || `分析${params.company}的外汇需求与潜在业务机会`;
+    const args = ["--company", params.company, "--query", q, "--json"];
+    if (params.top) args.push("--top", String(params.top));
+    return runRagAnswer(args, ed);
+  },
+};
+
+const askInsightsTool = {
+  name: "ask_insights",
+  label: "证据级智能问答",
+  description:
+    "对商机语料（公告/年报）做自由提问：自动识别公司、混合检索证据、DeepSeek 生成带引用的回答。" +
+    "适用问题：'为什么东鹏饮料排在商机第一' '这批企业集中反映了什么趋势' '哪些公司近期公告了套期保值业务'。",
+  promptSnippet: "基于公告/年报语料自由提问分析",
+  promptGuidelines: [
+    "问题中带公司名时自动限定该公司",
+    "回答带 [来源N] 引用与原文链接",
+    "适合'为什么/趋势/有哪些'类分析问题",
+  ],
+  parameters: Type.Object({
+    question: Type.String({ description: "要分析的问题" }),
+    top: Type.Optional(Type.Integer({ description: "检索证据条数，默认5" })),
+  }),
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    const ed = resolveEnginesForCwd(ctx?.cwd);
+    const args = ["--query", params.question, "--json"];
+    if (params.top) args.push("--top", String(params.top));
+    return runRagAnswer(args, ed);
+  },
+};
+
 const claimTool = {
   name: "claim_opportunity",
   label: "认领商机",
@@ -289,6 +356,8 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
   pi.registerTool(claimTool);
   pi.registerTool(invalidTool);
   pi.registerTool(startServerTool);
+  pi.registerTool(analyzeCompanyTool);
+  pi.registerTool(askInsightsTool);
 
   pi.registerCommand("radar", {
     description: "跑一遍企业外汇需求商机雷达全流程",
@@ -307,9 +376,10 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
 
   pi.on("session_start", async (_event, ctx) => {
     ctx.ui.notify(
-      "🛰️ 企业外汇需求商机雷达已就绪 | 9 tools\n" +
-      "  流程: crawl_cninfo / crawl_news(新浪+东财) / rule_screen / review_opportunity / build_daily_queue / render_web / start_server\n" +
+      "🛰️ 企业外汇需求商机雷达已就绪 | 11 tools\n" +
+      "  流程: crawl_cninfo / crawl_news / rule_screen / review_opportunity / build_daily_queue / render_web / start_server\n" +
       "  动作: claim_opportunity / mark_invalid\n" +
+      "  RAG: analyze_company / ask_insights（证据级智能问答）\n" +
       "  命令: /radar",
       "info"
     );

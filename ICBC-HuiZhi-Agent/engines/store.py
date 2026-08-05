@@ -381,6 +381,17 @@ def get_chunks(doc_id=None, company=None, limit=1000):
     return out
 
 
+def get_chunk_by_id(chunk_id):
+    conn = _conn()
+    r = conn.execute("SELECT * FROM doc_chunks WHERE id=?", (chunk_id,)).fetchone()
+    conn.close()
+    if not r:
+        return None
+    d = dict(r)
+    d["meta"] = json.loads(d["meta"] or "{}")
+    return d
+
+
 def search_chunks_fts(query, company=None, limit=20):
     """FTS5 trigram 检索。query 需为合法 MATCH 表达式（外部已转义）。"""
     conn = _conn()

@@ -32,6 +32,13 @@ python engines/llm_review.py --all      # ⑤ DeepSeek 复核
 python engines/build_queue.py           # ⑥ 生成今日队列（含 biz / evidence_url）
 python engines/render_web.py            # ⑦ 渲染 web/index.html
 
+# 4.5 RAG 证据级问答（可选，需 DASHSCOPE_API_KEY；缺省仅 BM25 关键词检索）
+python engines/ingest_docs.py           # 公告正文 PDF -> 文本入库（Top30 公司）
+python engines/build_profiles.py        # 企业档案：年报公司信息 -> 看板「企业档案」卡片
+python engines/index_docs.py            # 分块 + Embedding(百炼) + FAISS + FTS5
+python engines/retrieve.py --query "外汇套保"     # 混合检索（BM25+向量 RRF 融合）
+python engines/rag_answer.py --query "帮我分析东鹏饮料的外汇需求"  # 带 [来源N] 引用回答
+
 # 5. 查看（推荐演示方式：启动服务，认领/标记无效可持久化，资讯中心/年报可在线更新）
 python engines/serve.py                 # 打开 http://127.0.0.1:8000
 ```
@@ -41,9 +48,10 @@ python engines/serve.py                 # 打开 http://127.0.0.1:8000
 
 ## 页面功能
 
-- **商机雷达**：今日商机队列（评分排序）→ 点击查看详情：触发事件 / 潜在业务判断
-  （汇率避险 / 对外付款 / 对外收款 / 跨境结算）/ **03 最新年报数据**（从巨潮年报 PDF
-  提取汇兑损益等指标，可点「更新」实时抓取）/ 建议沟通重点 / 判断依据 / 商机评分。
+- **商机雷达**：今日商机队列（评分排序）→ 点击查看详情：**企业档案**（法定代表人/注册地址/
+  股票代码/邮箱等，来源年报）/ 触发事件 / 潜在业务判断（汇率避险 / 对外付款 / 对外收款 /
+  跨境结算）/ **最新年报数据**（从巨潮年报 PDF 提取汇兑损益等指标，可点「更新」实时抓取）/
+  建议沟通重点 / 判断依据 / 商机评分。
 - **资讯中心**：公告 + 舆情聚合检索，支持关键词搜索、来源标签筛选、时间窗口、分页，
   「更新数据」一键重跑爬虫 + 筛选 + 渲染。
 - 认领 / 标记无效：通过 `serve.py` 持久化到 SQLite。
@@ -71,7 +79,7 @@ npm start            # 打开 http://127.0.0.1:30141
 
 ```bash
 # 加载扩展（注册工具 + /radar 命令）
-pi -e ./extensions/ICBC-HuiZhi-Agent.ts
+pi -e ./extensions/icbc-huizhi-agent.ts
 
 # 在 Pi 中说一句话跑全流程：
 #   "跑一遍企业外汇需求商机雷达"
@@ -79,9 +87,12 @@ pi -e ./extensions/ICBC-HuiZhi-Agent.ts
 #   crawl_cninfo → rule_screen → review_opportunity(all=true)
 #   → build_daily_queue → render_web → start_server
 #   → claim_opportunity / mark_invalid
+# RAG 问答（证据级，带 [来源N] 引用）：
+#   analyze_company(company=东鹏饮料)   → 单公司深度分析
+#   ask_insights(question=为什么东鹏排第一) → 自由提问
 ```
 
-扩展安装到全局：复制 `extensions/ICBC-HuiZhi-Agent.ts` 到 `~/.pi/agent/extensions/`。
+扩展安装到全局：复制 `extensions/icbc-huizhi-agent.ts` 到 `~/.pi/agent/extensions/`。
 
 ## 目录结构
 
@@ -102,6 +113,11 @@ engines/
   llm_review.py       # ⑤ DeepSeek 复核（证据摘要/沟通问题/复核分）
   build_queue.py      # ⑥ 今日商机队列快照（含 biz / evidence_url）
   fetch_financials.py # ⑦ 年报引擎：巨潮年报 PDF -> 汇兑损益等外汇指标
+  ingest_docs.py      # RAG-1 公告正文 PDF -> 文本入库 documents
+  build_profiles.py   # RAG-2 企业档案：年报公司信息块解析 -> company_profiles
+  index_docs.py       # RAG-3 分块 + 百炼 Embedding -> FAISS + FTS5
+  retrieve.py         # RAG-4 混合检索：FTS5 BM25 + FAISS 向量 -> RRF 融合
+  rag_answer.py       # RAG-5 证据拼 Prompt -> DeepSeek -> 带 [来源N] 引用回答
   render_web.py       # ⑧ 渲染页面（模板引擎：engines/web_template.html）
   serve.py            # ⑨ 演示服务：/action 认领、/financials 年报、/news 资讯中心
   actions.py          # 认领/推进/标记无效 CLI
@@ -127,6 +143,8 @@ config.yaml         # 地区/关键词/窗口/评分权重/LLM 配置
 
 - 巨潮接口偶发超时 → 自动重试 + 失败回退样例数据（source 标注 sample）
 - "我行覆盖度"无行内数据 → config 占位值 55，页面已标注
-- DeepSeek key 缺失 → 复核自动跳过，评分用规则分
+- DeepSeek key 缺失 → 复核自动跳过，评分用规则分；RAG 生成同样降级为纯检索结果
+- Embedding key 缺失（DASHSCOPE_API_KEY）→ 自动降级为仅 BM25 关键词检索，流程不中断
+- faiss 不兼容中文路径（Windows fopen ANSI）→ 已封装 ASCII 临时路径中转读写
 - 年报解析依赖巨潮 PDF（扫描件会解析不到指标，页面提示"更新"重试）
 - 广东企业识别依赖 `engines/region_allowlist.csv` 名单，需持续维护

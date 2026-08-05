@@ -33,7 +33,7 @@
 | 索引 | 新增 `engines/index_docs.py` | Embedding 生成向量，写入 FAISS + SQLite | 新增 |
 | 检索 | 新增 `engines/retrieve.py` | BM25（SQLite FTS5）+ 向量 Top-K，RRF 融合 | 新增，复用 store.py 的 SQLite |
 | 生成 | 新增 `engines/rag_answer.py` | 证据拼 Prompt → DeepSeek → 带 [来源] 角标的回答 | 新增，复用 llm_review 的客户端 |
-| 工具接入 | 改 `extensions/fx-lead-radar.ts` | 注册 `analyze_company` / `ask_insights` | 扩展 |
+| 工具接入 | 改 `extensions/ICBC-HuiZhi-Agent.ts` | 注册 `analyze_company` / `ask_insights` | 扩展 |
 | 看板 | 改 `web_template.html` | 商机详情展示预取证据片段 | 扩展 |
 
 ## 5. 技术选型

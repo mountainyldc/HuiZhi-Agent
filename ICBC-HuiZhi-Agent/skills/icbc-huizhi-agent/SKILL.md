@@ -1,5 +1,5 @@
 ---
-name: fx-lead-radar
+name: icbc-huizhi-agent
 description: 工银汇智 · 企业外汇智能体 - 从巨潮公告自动发现广东企业结售汇/外汇套保商机，规则初筛+5维评分+大模型复核，输出每日商机队列与页面
 version: 1.0.0
 ---

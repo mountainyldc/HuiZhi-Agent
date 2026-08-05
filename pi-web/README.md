@@ -31,7 +31,7 @@ npm run dev
    - 模型：`deepseek-chat`（或 pi 已识别出的 `deepseek-v4-pro`）
 3. 在模型下拉里选中 DeepSeek 模型，新建会话即可对话
 4. 让 Pi 跑商机雷达全流程：
-   - 左侧 `Select project...` 选择 `fx-lead-radar` 仓库目录
+   - 左侧 `Select project...` 选择 `ICBC-HuiZhi-Agent` 仓库目录
    - 输入 **`跑一遍企业外汇需求商机雷达`**（或 `/radar`，注意第一次回车是补全，需再按一次发送）
    - 流程跑完后另开终端 `python engines/serve.py` 打开 http://127.0.0.1:8000 查看商机队列
 

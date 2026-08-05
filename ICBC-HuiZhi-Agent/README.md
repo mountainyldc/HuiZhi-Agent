@@ -1,4 +1,4 @@
-# fx-lead-radar — 工银汇智 · 企业外汇智能体（Pi Agent 编排）
+# ICBC-HuiZhi-Agent — 工银汇智 · 企业外汇智能体（Pi Agent 编排）
 
 基于 Pi Coding Agent 的商机雷达：自动抓取公开数据 → 规则初筛（广东企业 + 外汇套保 + 45 天）
 → 5 维评分 → DeepSeek 大模型复核 → 生成每日商机队列 → 渲染 Web 页面 → 认领 / 标记无效。
@@ -9,8 +9,8 @@
 
 ```bash
 # 1. 克隆
-git clone https://github.com/mountainyldc/fx-lead-radar.git
-cd fx-lead-radar
+git clone https://github.com/mountainyldc/ICBC-HuiZhi-Agent.git
+cd ICBC-HuiZhi-Agent
 
 # 2. 依赖（Python 3.10+）
 pip install -r requirements.txt        # requests / openai / pyyaml / pypdf
@@ -63,7 +63,7 @@ npm start            # 打开 http://127.0.0.1:30141
 2. 左侧 `Select project...` 选择本仓库目录，聊天框输入 **`跑一遍企业外汇需求商机雷达`**
 3. 流程跑完后另开终端：
    ```bash
-   cd fx-lead-radar
+   cd ICBC-HuiZhi-Agent
    python engines/serve.py   # 打开 http://127.0.0.1:8000 看商机队列
    ```
 
@@ -71,7 +71,7 @@ npm start            # 打开 http://127.0.0.1:30141
 
 ```bash
 # 加载扩展（注册工具 + /radar 命令）
-pi -e ./extensions/fx-lead-radar.ts
+pi -e ./extensions/ICBC-HuiZhi-Agent.ts
 
 # 在 Pi 中说一句话跑全流程：
 #   "跑一遍企业外汇需求商机雷达"
@@ -81,13 +81,13 @@ pi -e ./extensions/fx-lead-radar.ts
 #   → claim_opportunity / mark_invalid
 ```
 
-扩展安装到全局：复制 `extensions/fx-lead-radar.ts` 到 `~/.pi/agent/extensions/`。
+扩展安装到全局：复制 `extensions/ICBC-HuiZhi-Agent.ts` 到 `~/.pi/agent/extensions/`。
 
 ## 目录结构
 
 ```
-extensions/fx-lead-radar.ts   # Pi 扩展：工具 + /radar 命令
-skills/fx-lead-radar/SKILL.md # 业务知识 + 工具用法
+extensions/ICBC-HuiZhi-Agent.ts   # Pi 扩展：工具 + /radar 命令
+skills/ICBC-HuiZhi-Agent/SKILL.md # 业务知识 + 工具用法
 skills/workflow/SKILL.md      # 全流程编排指令
 engines/
   crawl_cninfo.py     # ① 巨潮公告抓取（关键词+45天，失败回退样例）

@@ -1,7 +1,7 @@
 # 工银汇智 · 企业外汇智能体（基于 Pi Coding Agent）
 
 > 项目统一目录：`E:\2026工行实习\基于picoding-agent的企业外汇需求商机雷达agent实现`
-> GitHub：https://github.com/mountainyldc/fx-lead-radar （clone 即用）
+> GitHub：https://github.com/mountainyldc/ICBC-HuiZhi-Agent （clone 即用）
 > 更新日期：2026-08-05
 
 ## 项目定位
@@ -25,7 +25,7 @@
 
 ## 代码（✅ 已实现，单仓库 clone 即用）
 ```
-fx-lead-radar/    # 商机雷达本体：Pi 扩展 + skills + 9 个引擎 + 苹果风 Web 页面
+ICBC-HuiZhi-Agent/    # 商机雷达本体：Pi 扩展 + skills + 9 个引擎 + 苹果风 Web 页面
   README.md       # 使用说明（快速开始 / 接口一览 / 边界）
 pi-web/           # Pi Web 桌面端（已定制 ICBC 标识），clone 后 npm install 即可用
 ```
@@ -33,12 +33,12 @@ pi-web/           # Pi Web 桌面端（已定制 ICBC 标识），clone 后 npm 
 ## 一条命令体验（clone 即用）
 
 ```bash
-git clone https://github.com/mountainyldc/fx-lead-radar.git
-cd fx-lead-radar
+git clone https://github.com/mountainyldc/ICBC-HuiZhi-Agent.git
+cd ICBC-HuiZhi-Agent
 
 # 商机雷达 Web（Python 3.10+，自动播种数据）
-pip install -r fx-lead-radar/requirements.txt
-cd fx-lead-radar && python engines/serve.py     # 打开 http://127.0.0.1:8000
+pip install -r ICBC-HuiZhi-Agent/requirements.txt
+cd ICBC-HuiZhi-Agent && python engines/serve.py     # 打开 http://127.0.0.1:8000
 
 # Pi Web 桌面端（Node.js >= 22.19，配置 DeepSeek 后可直接对话/跑雷达）
 cd ../pi-web

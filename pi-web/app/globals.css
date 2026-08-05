@@ -19,20 +19,20 @@
 }
 
 :root {
-  --bg: #ffffff;
-  --bg-panel: #f5f5f5;
-  --bg-hover: #eeeeee;
-  --bg-selected: #e8e8e8;
-  --border: #e0e0e0;
-  --text: #1a1a1a;
-  --text-muted: #6b7280;
-  --text-dim: #9ca3af;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --user-bg: #eff6ff;
-  --assistant-bg: #ffffff;
-  --tool-bg: #f9fafb;
-  --bg-subtle: rgba(0,0,0,0.03);
+  --bg: #FAF9F5;
+  --bg-panel: #F5F4EF;
+  --bg-hover: #EFEDE6;
+  --bg-selected: #E9E6DC;
+  --border: #E8E6DF;
+  --text: #3D3929;
+  --text-muted: #6B6862;
+  --text-dim: #9A958A;
+  --accent: #C15F3C;
+  --accent-hover: #A94B2F;
+  --user-bg: #F0EEE6;
+  --assistant-bg: #FFFFFF;
+  --tool-bg: #F5F4EF;
+  --bg-subtle: rgba(61,57,41,0.05);
 }
 
 html.dark {

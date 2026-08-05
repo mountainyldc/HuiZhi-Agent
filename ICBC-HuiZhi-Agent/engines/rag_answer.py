@@ -10,6 +10,7 @@
 import argparse
 import json
 import os
+import re
 import sys
 
 from common import load_config
@@ -55,6 +56,24 @@ def build_messages(query, evidence):
     ]
 
 
+_SRC_RE = re.compile(r"\[来源\s*(\d+)(?:\s*[-–—]\s*(\d+))?\]")
+
+
+def linkify_sources(text, evidence):
+    urls = [e.get("url", "") or "" for e in evidence]
+
+    def _repl(m):
+        n1 = int(m.group(1))
+        n2 = int(m.group(2)) if m.group(2) else n1
+        for idx in range(n1, n2 + 1):
+            if 1 <= idx <= len(urls) and urls[idx - 1]:
+                label = m.group(0).strip("[]")
+                return f"[{label}]({urls[idx - 1]})"
+        return m.group(0)
+
+    return _SRC_RE.sub(_repl, text)
+
+
 def answer(query, company=None, top_n=5, dry_run=False, verbose=False):
     cfg = load_config()
     llm = cfg["rag"]["llm"]
@@ -83,6 +102,7 @@ def answer(query, company=None, top_n=5, dry_run=False, verbose=False):
     except Exception as exc:
         print(f"[error] 生成失败: {exc}", file=sys.stderr)
         return None
+    content = linkify_sources(content, evidence)
     return {"company": company, "answer": content, "evidence": evidence}
 
 

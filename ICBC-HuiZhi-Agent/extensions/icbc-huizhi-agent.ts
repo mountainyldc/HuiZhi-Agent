@@ -253,7 +253,7 @@ function runRagAnswer(args: string[], ed: string) {
   try {
     const parsed = JSON.parse(out.content[0].text);
     const evLines = (parsed.evidence || [])
-      .map((e: any, i: number) => `[来源${i + 1}] ${e.company} | ${e.publish_date} | ${e.title}\n    ${e.url}`)
+      .map((e: any, i: number) => `[来源${i + 1}](${e.url}) ${e.company} | ${e.publish_date} | ${e.title}`)
       .join("\n");
     const head = parsed.company ? `公司：${parsed.company}\n\n` : "";
     return { content: [{ type: "text", text: `${head}${parsed.answer}\n\n参考证据：\n${evLines}` }], isError: false };

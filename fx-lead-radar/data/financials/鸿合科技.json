@@ -1,0 +1,20 @@
+{
+  "status": "ok",
+  "company": "鸿合科技",
+  "report_year": "2026 季报",
+  "source": {
+    "title": "2026年一季度报告",
+    "url": "http://static.cninfo.com.cn/finalpage/2026-04-25/1225176229.PDF",
+    "publish_date": "2026-04-25"
+  },
+  "indicators": [
+    {
+      "name": "汇兑损益",
+      "value": "188.5 万元",
+      "note": "财务费用中的汇兑损益",
+      "page": 2
+    }
+  ],
+  "message": "",
+  "updated_at": "2026-08-05 09:55"
+}

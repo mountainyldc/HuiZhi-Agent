@@ -3,7 +3,7 @@
 基于 Pi Coding Agent 的商机雷达：自动抓取公开数据 → 规则初筛（广东企业 + 外汇套保 + 45 天）
 → 5 维评分 → DeepSeek 大模型复核 → 生成每日商机队列 → 渲染 Web 页面 → 认领 / 标记无效。
 页面提供**商机雷达**（队列 + 详情 + 潜在业务判断 + 最新年报数据 + 沟通重点）与**资讯中心**
-（搜索 / 来源筛选 / 时间窗口 / 分页）两个视图，苹果风浅灰配色，红色仅保留 ICBC 徽标。
+（搜索 / 来源筛选 / 时间窗口 / 分页）两个视图。数据源：巨潮资讯 · 东方财富 7x24 · 同花顺财经直播 · 新浪财经 · 港交所披露易 · 商务部机电产品国际招标 · 广东省投资项目在线审批监管平台 · 广东省生态环境厅 · 广州/佛山市商务局。
 
 ## 快速开始（clone 即用）
 
@@ -22,6 +22,11 @@ set DEEPSEEK_API_KEY=sk-xxx
 python engines/crawl_cninfo.py          # ① 巨潮公告（失败回退样例）
 python engines/sina_news.py             # ② 新浪财经 7x24 快讯（舆情软信号）
 python engines/eastmoney_news.py        # ③ 东方财富 7x24 快讯（舆情软信号）
+python engines/crawl_em_feed.py         # ③b 东方财富 7x24 全量快讯（资讯中心主力）
+python engines/crawl_ths.py             # ③c 同花顺财经直播（资讯中心）
+python engines/crawl_hkex.py            # ③d 港交所披露易（资讯中心）
+python engines/crawl_mofcom.py          # ③e 商务部机电产品国际招标（资讯中心）
+python engines/crawl_gov_gd.py          # ③f 生态环境厅/广佛商务局/广东投资项目（资讯中心）
 python engines/rule_screen.py --reset   # ④ 规则初筛 + 5 维评分 + 潜在业务推断
 python engines/llm_review.py --all      # ⑤ DeepSeek 复核
 python engines/build_queue.py           # ⑥ 生成今日队列（含 biz / evidence_url）
@@ -88,6 +93,11 @@ engines/
   crawl_cninfo.py     # ① 巨潮公告抓取（关键词+45天，失败回退样例）
   sina_news.py        # ② 新浪财经 7x24 快讯 -> 舆情软信号
   eastmoney_news.py   # ③ 东方财富 7x24 快讯 -> 舆情软信号
+  crawl_em_feed.py    # ③b 东财 7x24 全量快讯（资讯中心，含外汇信号标记）
+  crawl_ths.py        # ③c 同花顺财经直播（资讯中心）
+  crawl_hkex.py       # ③d 港交所披露易（资讯中心）
+  crawl_mofcom.py     # ③e 商务部机电产品国际招标（资讯中心）
+  crawl_gov_gd.py     # ③f 生态环境厅/广佛商务局/广东投资项目（资讯中心）
   rule_screen.py      # ④ 规则初筛 + 5 维评分 + infer_biz 潜在业务推断
   llm_review.py       # ⑤ DeepSeek 复核（证据摘要/沟通问题/复核分）
   build_queue.py      # ⑥ 今日商机队列快照（含 biz / evidence_url）

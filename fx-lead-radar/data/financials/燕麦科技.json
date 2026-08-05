@@ -1,0 +1,13 @@
+{
+  "status": "ok",
+  "company": "燕麦科技",
+  "report_year": "2026 季报",
+  "source": {
+    "title": "2026年第一季度报告",
+    "url": "http://static.cninfo.com.cn/finalpage/2026-04-25/1225177309.PDF",
+    "publish_date": "2026-04-25"
+  },
+  "indicators": [],
+  "message": "已解析年报，但未提取到外汇相关指标（可能为扫描件）。",
+  "updated_at": "2026-08-05 09:54"
+}

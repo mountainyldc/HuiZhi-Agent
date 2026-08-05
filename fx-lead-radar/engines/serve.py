@@ -1,11 +1,9 @@
-"""轻量演示服务：静态页 + 认领/标记无效持久化 + 资讯中心 + 年报数据。
-
-用法:
+﻿"""杞婚噺婕旂ず鏈嶅姟锛氶潤鎬侀〉 + 璁ら/鏍囪鏃犳晥鎸佷箙鍖?+ 璧勮涓績 + 骞存姤鏁版嵁銆?
+鐢ㄦ硶:
   python serve.py [--port 8000]
-  浏览器打开 http://127.0.0.1:8000
+  娴忚鍣ㄦ墦寮€ http://127.0.0.1:8000
 
-启动时若数据库为空，会自动用 data/crawled 下的数据重建商机队列，clone 即用。
-"""
+鍚姩鏃惰嫢鏁版嵁搴撲负绌猴紝浼氳嚜鍔ㄧ敤 data/crawled 涓嬬殑鏁版嵁閲嶅缓鍟嗘満闃熷垪锛宑lone 鍗崇敤銆?"""
 import argparse
 import json
 import os
@@ -21,23 +19,23 @@ import fetch_financials
 
 
 def _ensure_seeded():
-    """数据库为空时，用已有 crawled 数据重建公告/商机并渲染页面。"""
+    """鏁版嵁搴撲负绌烘椂锛岀敤宸叉湁 crawled 鏁版嵁閲嶅缓鍏憡/鍟嗘満骞舵覆鏌撻〉闈€?""
     n = len(store.list_announcements())
     if n > 0:
         return False
-    print("[info] 数据库为空，自动重建（rule_screen -> build_queue -> render）...")
+    print("[info] 鏁版嵁搴撲负绌猴紝鑷姩閲嶅缓锛坮ule_screen -> build_queue -> render锛?..")
     from rule_screen import rule_screen
     opps = rule_screen()
-    print(f"[info] 重建商机 {len(opps)} 条")
+    print(f"[info] 閲嶅缓鍟嗘満 {len(opps)} 鏉?)
     build_queue()
     render()
     return True
 
 
 def _run_pipeline():
-    """更新数据：依次跑爬虫(含样例回退) -> 规则筛选 -> 队列 -> 渲染。返回 {script: ok/fail}。"""
+    """鏇存柊鏁版嵁锛氫緷娆¤窇鐖櫕(鍚牱渚嬪洖閫€) -> 瑙勫垯绛涢€?-> 闃熷垪 -> 娓叉煋銆傝繑鍥?{script: ok/fail}銆?""
     results = {}
-    for script in ("crawl_cninfo.py", "sina_news.py", "eastmoney_news.py"):
+    for script in ("crawl_cninfo.py", "sina_news.py", "eastmoney_news.py", "crawl_em_feed.py", "crawl_ths.py", "crawl_hkex.py", "crawl_mofcom.py", "crawl_gov_gd.py"):
         try:
             r = subprocess.run(
                 [sys.executable, project_path("engines", script)],
@@ -79,7 +77,7 @@ class Handler(BaseHTTPRequestHandler):
             from urllib.parse import parse_qs, urlparse
             qs = parse_qs(urlparse(self.path).query)
             company = (qs.get("company") or [""])[0]
-            data = fetch_financials.fetch_financials(company) if company else {"status": "no_report", "message": "缺少 company 参数"}
+            data = fetch_financials.fetch_financials(company) if company else {"status": "no_report", "message": "缂哄皯 company 鍙傛暟"}
             self._send(200, data)
         elif self.path.startswith("/news"):
             from urllib.parse import parse_qs, urlparse
@@ -115,10 +113,10 @@ class Handler(BaseHTTPRequestHandler):
             company = body.get("company", "")
             try:
                 data = fetch_financials.fetch_financials(company, force=True)
-                data["message"] = data.get("message") or "已更新"
+                data["message"] = data.get("message") or "宸叉洿鏂?
                 self._send(200, data)
             except Exception as exc:
-                self._send(500, {"status": "error", "message": f"抓取失败：{exc}"})
+                self._send(500, {"status": "error", "message": f"鎶撳彇澶辫触锛歿exc}"})
             return
         if self.path == "/news/update":
             try:
@@ -126,12 +124,12 @@ class Handler(BaseHTTPRequestHandler):
                 ok = all(v == "ok" for v in results.values())
                 self._send(200, {
                     "ok": ok,
-                    "message": "数据已更新（爬虫+筛选+队列+页面已重建）" if ok
-                              else f"部分更新（{results}）",
+                    "message": "鏁版嵁宸叉洿鏂帮紙鐖櫕+绛涢€?闃熷垪+椤甸潰宸查噸寤猴級" if ok
+                              else f"閮ㄥ垎鏇存柊锛坽results}锛?,
                     "results": results,
                 })
             except Exception as exc:
-                self._send(500, {"error": f"更新失败：{exc}"})
+                self._send(500, {"error": f"鏇存柊澶辫触锛歿exc}"})
             return
         if self.path != "/action":
             self._send(404, {"error": "not found"})
@@ -147,12 +145,12 @@ class Handler(BaseHTTPRequestHandler):
             elif act == "invalid":
                 store.set_lifecycle(oid, "invalid", owner=owner)
             else:
-                self._send(400, {"error": f"未知动作 {act}"})
+                self._send(400, {"error": f"鏈煡鍔ㄤ綔 {act}"})
                 return
             build_queue()
             render()
             self._send(200, {"ok": True, "opportunity_id": oid, "lifecycle": store.get_opportunity(oid)["lifecycle"],
-                             "message": "已更新并重新生成队列与页面"})
+                             "message": "宸叉洿鏂板苟閲嶆柊鐢熸垚闃熷垪涓庨〉闈?})
         except Exception as exc:
             self._send(500, {"error": str(exc)})
 
@@ -166,9 +164,10 @@ def main():
     args = ap.parse_args()
     store.init_db()
     _ensure_seeded()
-    print(f"[info] 商机雷达演示服务: http://127.0.0.1:{args.port}")
+    print(f"[info] 鍟嗘満闆疯揪婕旂ず鏈嶅姟: http://127.0.0.1:{args.port}")
     ThreadingHTTPServer(("127.0.0.1", args.port), Handler).serve_forever()
 
 
 if __name__ == "__main__":
     main()
+

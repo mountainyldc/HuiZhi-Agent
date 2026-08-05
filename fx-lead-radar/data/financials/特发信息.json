@@ -1,0 +1,13 @@
+{
+  "status": "ok",
+  "company": "特发信息",
+  "report_year": "2026 季报",
+  "source": {
+    "title": "2026年一季度报告",
+    "url": "http://static.cninfo.com.cn/finalpage/2026-04-27/1225178475.PDF",
+    "publish_date": "2026-04-27"
+  },
+  "indicators": [],
+  "message": "已解析年报，但未提取到外汇相关指标（可能为扫描件）。",
+  "updated_at": "2026-08-05 09:55"
+}

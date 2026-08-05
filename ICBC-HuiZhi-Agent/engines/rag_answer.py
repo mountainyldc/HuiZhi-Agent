@@ -13,6 +13,10 @@ import os
 import re
 import sys
 
+# Fix Windows console encoding issue
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
 from common import load_config
 from retrieve import retrieve
 import store
@@ -20,7 +24,8 @@ import store
 SYSTEM_PROMPT = (
     "你是工商银行深圳分行金融市场部的外汇业务分析师，服务对象是客户经理。"
     "回答必须基于给定的检索证据，不得编造证据中不存在的信息。"
-    "引用证据时用 [来源N] 标注（N 对应证据列表编号）。"
+    "引用证据时必须在句末用 [来源N] 标注（N 对应证据列表编号，如 [来源1]、[来源2]），每条关键依据、数字、结论都要标注，缺一不可。"
+    "禁止写“详见原文链接”“公告编号可见原文”这类占位文字，需要引用时一律用 [来源N]。"
     "如果证据不足以回答，明确列出需要向客户核实的未知项。"
     "用中文回答，先给结论，再给依据，最后给建议行动。"
 )
@@ -61,17 +66,19 @@ _SRC_RE = re.compile(r"\[来源\s*(\d+)(?:\s*[-–—]\s*(\d+))?\]")
 
 def linkify_sources(text, evidence):
     urls = [e.get("url", "") or "" for e in evidence]
+    replaced = {"n": 0}
 
     def _repl(m):
         n1 = int(m.group(1))
         n2 = int(m.group(2)) if m.group(2) else n1
         for idx in range(n1, n2 + 1):
             if 1 <= idx <= len(urls) and urls[idx - 1]:
+                replaced["n"] += 1
                 label = m.group(0).strip("[]")
                 return f"[{label}]({urls[idx - 1]})"
         return m.group(0)
 
-    return _SRC_RE.sub(_repl, text)
+    return _SRC_RE.sub(_repl, text), replaced["n"]
 
 
 def answer(query, company=None, top_n=5, dry_run=False, verbose=False):
@@ -102,7 +109,15 @@ def answer(query, company=None, top_n=5, dry_run=False, verbose=False):
     except Exception as exc:
         print(f"[error] 生成失败: {exc}", file=sys.stderr)
         return None
-    content = linkify_sources(content, evidence)
+    content, n_links = linkify_sources(content, evidence)
+    if n_links == 0:
+        lines = ["\n\n📎 数据来源（点击打开原文）："]
+        for i, e in enumerate(evidence, start=1):
+            comp = (e.get("company") or "").strip()
+            date = (e.get("publish_date") or "").strip()
+            title = (e.get("title") or "").strip()
+            lines.append(f"- [来源{i}]({e.get('url', '')}) {comp} | {date} | {title}")
+        content += "\n".join(lines)
     return {"company": company, "answer": content, "evidence": evidence}
 
 
@@ -121,11 +136,18 @@ def main():
     if args.dry_run:
         return
     if args.json:
-        print(json.dumps(res, ensure_ascii=False, indent=2))
+        output = json.dumps(res, ensure_ascii=False, indent=2)
+        try:
+            print(output)
+        except UnicodeEncodeError:
+            print(json.dumps(res, ensure_ascii=True, indent=2))
         return
     print("=" * 60)
     print("回答：")
-    print(res["answer"])
+    try:
+        print(res["answer"])
+    except UnicodeEncodeError:
+        print(res["answer"].encode('ascii', errors='replace').decode('ascii'))
     print("=" * 60)
     for i, e in enumerate(res["evidence"], start=1):
         print(f"[来源{i}] {e['company']} | {e['publish_date']} | {e['title'][:40]}")

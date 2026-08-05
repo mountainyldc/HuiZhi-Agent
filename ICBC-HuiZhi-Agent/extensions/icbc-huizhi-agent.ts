@@ -256,7 +256,9 @@ function runRagAnswer(args: string[], ed: string) {
       .map((e: any, i: number) => `[来源${i + 1}](${e.url}) ${e.company} | ${e.publish_date} | ${e.title}`)
       .join("\n");
     const head = parsed.company ? `公司：${parsed.company}\n\n` : "";
-    return { content: [{ type: "text", text: `${head}${parsed.answer}\n\n参考证据：\n${evLines}` }], isError: false };
+    const hasSources = (parsed.answer || "").includes("数据来源（点击打开原文）");
+    const tail = hasSources ? "" : `\n\n参考证据：\n${evLines}`;
+    return { content: [{ type: "text", text: `${head}${parsed.answer}${tail}` }], isError: false };
   } catch {
     return { content: [{ type: "text", text: out.content[0].text }], isError: false };
   }

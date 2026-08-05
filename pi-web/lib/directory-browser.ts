@@ -13,7 +13,7 @@ export function getBrowseStartDirectory(directory?: string): string {
 
 export function normalizeDirectory(directory: string): string {
   if (directory === "~") return homedir();
-  if (directory.startsWith("~/")) return path.resolve(homedir(), directory.slice(2));
+  if (directory.startsWith("~/")) return path.win32.resolve(homedir(), directory.slice(2));
   return path.resolve(directory);
 }
 

@@ -3,6 +3,7 @@
 > 项目统一目录：`E:\2026工行实习\基于picoding-agent的企业外汇需求商机雷达agent实现`
 > GitHub：https://github.com/mountainyldc/ICBC-HuiZhi-Agent （clone 即用）
 > 更新日期：2026-08-06
+> CI：[![CI](https://github.com/mountainyldc/ICBC-HuiZhi-Agent/actions/workflows/ci.yml/badge.svg)](https://github.com/mountainyldc/ICBC-HuiZhi-Agent/actions/workflows/ci.yml)
 
 ## 项目定位
 帮金融市场部客户经理自动发现"潜在有结售汇需求的公司"：自动抓取公开数据 → 关键字 + 大模型语义过滤

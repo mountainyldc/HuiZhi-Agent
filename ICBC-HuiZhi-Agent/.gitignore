@@ -13,3 +13,7 @@ data/financials/*_report.pdf
 
 # RAG 公告 PDF 下载缓存不入库
 data/rag/pdf/
+
+# pytest 缓存与本地设置不入库（clone 即用靠默认值重建）
+.pytest_cache/
+data/settings.json

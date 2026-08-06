@@ -18,6 +18,7 @@ import json
 import os
 
 from common import load_config, project_path
+import settings
 import store
 
 HEDGE_KEYWORDS = ["套保", "套期保值", "衍生品", "结售汇", "避险", "汇率风险", "远期", "掉期", "期权"]
@@ -62,9 +63,10 @@ def infer_biz(title, tags):
     return {"biz_type": biz_type, "biz_sub": biz_sub,
             "event_type": event_type, "country": country, "currency": currency}
 
-def classify(title):
+def classify(title, hedge_keywords=None):
     tags = []
-    if any(k in title for k in HEDGE_KEYWORDS):
+    hedge_keywords = hedge_keywords or HEDGE_KEYWORDS
+    if any(k in title for k in hedge_keywords):
         tags.append("外汇与套保")
     if any(k in title for k in OVERSEAS_KEYWORDS):
         tags.append("境外投资/子公司")
@@ -148,6 +150,9 @@ def rule_screen(input_path=None, region=None):
     region = region or cfg["region"]["default"]
     by_code, by_name = load_allowlist(project_path(cfg["region"]["allowlist"]))
     today = datetime.date.today()
+    hedge_kw = settings.effective_keywords(HEDGE_KEYWORDS)
+    days_win = settings.effective_days_window(cfg["crawl"]["days_window"])
+    ex_words = settings.exclude_words()
 
     if input_path is None:
         crawled_dir = project_path("data/crawled")
@@ -166,6 +171,9 @@ def rule_screen(input_path=None, region=None):
 
     created = []
     for ann in anns:
+        title0 = ann.get("title", "")
+        if ex_words and any(w in title0 for w in ex_words):
+            continue  # 排除词过滤（设置）
         source = ann.get("source", "")
         is_news = NEWS_SOURCE_MARK in source
         code = ann.get("stock_code", "")
@@ -184,11 +192,11 @@ def rule_screen(input_path=None, region=None):
             total, breakdown = _score_news(ann, cfg, city, today)
             trigger = f"{ann['source'].split('·')[0]}快讯：{ann['title']}"
         else:
-            tags = classify(ann.get("title", ""))
+            tags = classify(title0, hedge_kw)
             if "外汇与套保" not in tags:
                 continue  # 硬规则2
             d = _days_ago(ann.get("publish_date"), today)
-            if d is None or d > cfg["crawl"]["days_window"] or d < 0:
+            if d is None or d > days_win or d < 0:
                 continue  # 硬规则3
             total, breakdown = _score_announcement(ann, cfg, city, today)
             rule_hits = ["广东企业", "外汇与套保", "近45天官方公告"]

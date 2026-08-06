@@ -13,11 +13,12 @@ import subprocess
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from common import project_path
+from common import load_config, project_path
 import store
 from build_queue import build_queue
 from render_web import render
 import fetch_financials
+import settings as radar_settings
 
 
 def _ensure_seeded():
@@ -100,6 +101,21 @@ class Handler(BaseHTTPRequestHandler):
                 page_size = 50
             data = store.search_announcements(q=q, source=source, days=days, page=page, page_size=page_size)
             self._send(200, data)
+        elif self.path == "/settings":
+            s = radar_settings.get_settings()
+            cfg = load_config()
+            self._send(200, {
+                "settings": s,
+                "defaults": radar_settings.DEFAULTS,
+                "effective": {
+                    "keywords": radar_settings.effective_keywords(
+                        (cfg or {}).get("crawl", {}).get("keywords", []) if cfg else []),
+                    "days_window": radar_settings.effective_days_window(
+                        (cfg or {}).get("crawl", {}).get("days_window", 180) if cfg else 180),
+                    "exclude_words": radar_settings.exclude_words(),
+                },
+                "message": "关键词为空时回退 config.yaml 默认值；配置在下次运行流程时生效。",
+            })
         elif self.path == "/queue.json":
             snap_dir = project_path("data/queue_snapshots")
             files = sorted(f for f in os.listdir(snap_dir) if f.endswith(".json"))
@@ -109,6 +125,20 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, {"error": "not found"})
 
     def do_POST(self):
+        if self.path == "/settings":
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(n).decode("utf-8")) if n else {}
+                if body.get("action") == "reset":
+                    cur = radar_settings.reset_settings()
+                    self._send(200, {"ok": True, "settings": cur, "message": "已恢复默认配置（下次运行生效）"})
+                else:
+                    patch = {k: body.get(k) for k in ("keywords", "exclude_words", "days_window") if k in body}
+                    cur = radar_settings.save_settings(patch)
+                    self._send(200, {"ok": True, "settings": cur, "message": "已保存（下次运行流程时生效）"})
+            except Exception as exc:
+                self._send(500, {"error": f"保存失败：{exc}"})
+            return
         if self.path == "/financials/update":
             n = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(n).decode("utf-8"))

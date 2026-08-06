@@ -2,6 +2,7 @@
 
 生命周期：new(新发现) -> verifying(待核实) -> contacted(已联系)；另有 invalid(标记无效)。
 """
+import datetime
 import json
 import os
 import sqlite3
@@ -61,6 +62,15 @@ def init_db(db_path=None):
             zip_code TEXT, website TEXT, email TEXT, stock_codes TEXT,
             registered_capital TEXT, credit_code TEXT,
             source_title TEXT, source_url TEXT, report_date TEXT, updated_at TEXT
+        );
+                CREATE TABLE IF NOT EXISTS company_insights(
+            company TEXT PRIMARY KEY,
+            revenue_scale TEXT, export_ratio TEXT, overseas_subsidiaries TEXT,
+            fx_exposure_direction TEXT, hedge_history TEXT, recommended_products TEXT,
+            confidence TEXT, source_note TEXT, updated_at TEXT
+        );
+        CREATE TABLE IF NOT EXISTS conversation_memory(
+            id INTEGER PRIMARY KEY, data TEXT, updated_at TEXT
         );
         """
     )
@@ -452,6 +462,71 @@ def list_profiles(limit=200):
     ).fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+
+# ---------- 企业画像（company_insights） ----------
+
+def upsert_insight(insight):
+    conn = _conn()
+    conn.execute(
+        """INSERT OR REPLACE INTO company_insights
+           (company, revenue_scale, export_ratio, overseas_subsidiaries,
+            fx_exposure_direction, hedge_history, recommended_products,
+            confidence, source_note, updated_at)
+           VALUES (?,?,?,?,?,?,?,?,?,?)""",
+        (
+            insight["company"], insight.get("revenue_scale") or "",
+            insight.get("export_ratio") or "", insight.get("overseas_subsidiaries") or "",
+            insight.get("fx_exposure_direction") or "", insight.get("hedge_history") or "",
+            insight.get("recommended_products") or "", insight.get("confidence") or "",
+            insight.get("source_note") or "", insight.get("updated_at"),
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_insight(company):
+    conn = _conn()
+    r = conn.execute("SELECT * FROM company_insights WHERE company=?", (company,)).fetchone()
+    conn.close()
+    return dict(r) if r else None
+
+
+def list_insights(limit=200):
+    conn = _conn()
+    rows = conn.execute(
+        "SELECT * FROM company_insights ORDER BY updated_at DESC LIMIT ?", (limit,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+# ---------- 会话记忆（conversation_memory，单行 JSON） ----------
+
+def memory_get():
+    conn = _conn()
+    r = conn.execute("SELECT data FROM conversation_memory WHERE id=1").fetchone()
+    conn.close()
+    if r is None:
+        return {"recent_companies": [], "last_company": None, "regions": [], "updated_at": None}
+    try:
+        return json.loads(r["data"] or "{}")
+    except Exception:
+        return {"recent_companies": [], "last_company": None, "regions": [], "updated_at": None}
+
+
+def memory_set(data):
+    data["updated_at"] = datetime.datetime.now().isoformat(timespec="seconds")
+    conn = _conn()
+    conn.execute(
+        "INSERT OR REPLACE INTO conversation_memory(id, data, updated_at) VALUES (1,?,?)",
+        (json.dumps(data, ensure_ascii=False), data["updated_at"]),
+    )
+    conn.commit()
+    conn.close()
+
+
 
 
 if __name__ == "__main__":

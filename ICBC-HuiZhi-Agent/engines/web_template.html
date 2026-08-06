@@ -180,6 +180,19 @@
   .eye:hover { opacity: 1; }
   .news-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; flex-shrink: 0; }
   .page-btns { display: flex; gap: 8px; }
+  .modal-mask { position: fixed; inset: 0; background: rgba(43,40,31,.42); display: flex; align-items: center; justify-content: center; z-index: 80; }
+  .modal { width: 560px; max-width: calc(100vw - 48px); max-height: calc(100vh - 80px); overflow: auto; background: var(--card); border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.25); padding: 22px 24px; }
+  .modal h3 { font-size: 16px; font-weight: 750; margin-bottom: 4px; }
+  .modal .sub { font-size: 12px; color: var(--ink-3); margin-bottom: 16px; line-height: 1.6; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12.5px; font-weight: 650; color: var(--ink); margin-bottom: 6px; }
+  .field .hint { font-size: 11.5px; color: var(--ink-3); margin-top: 4px; line-height: 1.55; }
+  .field textarea { width: 100%; height: 74px; border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; font-size: 13px; font-family: inherit; color: var(--ink); resize: vertical; background: #FBF9F4; outline: none; }
+  .field textarea:focus { border-color: var(--brand-2); background: #fff; }
+  .field input[type=number] { width: 130px; border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; font-size: 13px; color: var(--ink); background: #FBF9F4; outline: none; }
+  .eff-line { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .eff-chip { font-size: 11px; color: var(--blue); background: var(--blue-bg); padding: 3px 9px; border-radius: 999px; }
+  .modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
   @media (max-width: 1200px) { .stats { grid-template-columns: repeat(2, 1fr); } .two { grid-template-columns: 1fr; } .kv { grid-template-columns: 1fr; } .bizgrid { grid-template-columns: repeat(2, 1fr); } #queue { width: 350px; } }
 </style>
 </head>
@@ -195,6 +208,7 @@
     <span>地区 <b>广东</b></span>
     <span id="hdrDate"></span>
     <span>用户 <b>叶霖德</b></span>
+    <button class="btn sm" id="settingsBtn" onclick="openSettings()" title="规则过滤设置">⚙ 设置</button>
   </div>
 </header>
 
@@ -265,6 +279,32 @@
   <span>数据源：巨潮资讯 · 东方财富 · 同花顺 · 新浪财经 · 港交所披露易 · 商务部国际招标 · 广东投资项目 · 生态环境厅 · 广佛商务局</span>
   <span id="genTime"></span>
 </footer>
+
+<div class="modal-mask hidden" id="settingsModal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h3>规则过滤设置</h3>
+    <div class="sub">配置抓取与初筛使用的关键词、排除词和时间窗口。保存后<strong>下次运行流程时生效</strong>；留空自动回退 config.yaml 默认值。</div>
+    <div class="field">
+      <label>生效关键词（每行一个，或逗号分隔）</label>
+      <textarea id="setKeywords" placeholder="例：套期保值&#10;远期结售汇&#10;外汇衍生品"></textarea>
+      <div class="hint">当前生效：<span id="effKeywords" class="eff-line"></span></div>
+    </div>
+    <div class="field">
+      <label>排除词（标题命中任意一个即跳过该条）</label>
+      <textarea id="setExclude" placeholder="例：更正&#10;补充说明"></textarea>
+      <div class="hint">留空则不排除；排除词越少，队列噪声可能越多。</div>
+    </div>
+    <div class="field">
+      <label>时间窗口（天）</label>
+      <input type="number" id="setDays" min="1" max="3650" step="1">
+      <div class="hint">只筛选取最近 N 天内的公告/快讯；留空使用默认值 180 天。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="resetSettings()">恢复默认</button>
+      <button class="btn claim" onclick="saveSettings()">保存</button>
+    </div>
+  </div>
+</div>
 
 <div id="toast"></div>
 <script>
@@ -501,6 +541,48 @@ function renderKPIs(){
   document.getElementById("kVerifying").textContent = items.filter(i=>i.lifecycle==="verifying").length;
   document.getElementById("kClaimed").textContent = items.filter(i=>i.owner).length;
 }
+/* ---- 设置 ---- */
+let settingsData = null;
+function openSettings(){
+  document.getElementById("settingsModal").classList.remove("hidden");
+  const box = document.getElementById("setKeywords");
+  box.placeholder = "加载中…";
+  fetch("/settings").then(r=>r.json()).then(j=>{
+    settingsData = j;
+    const s = j.settings || {};
+    document.getElementById("setKeywords").value = (s.keywords||[]).join("\n");
+    document.getElementById("setExclude").value = (s.exclude_words||[]).join("\n");
+    document.getElementById("setDays").value = s.days_window == null ? "" : s.days_window;
+    const eff = j.effective || {};
+    const kws = (eff.keywords||[]).map(k=>`<span class="eff-chip">${esc(k)}</span>`).join("");
+    document.getElementById("effKeywords").innerHTML = kws || `<span style="color:var(--ink-3)">（默认）</span>`;
+  }).catch(e=>{
+    box.value = ""; box.placeholder = "未连接服务：请通过 python serve.py 启动后使用设置功能";
+    document.getElementById("effKeywords").innerHTML = `<span style="color:var(--ink-3)">静态页面无法读取设置</span>`;
+    toast("设置需通过 serve.py 访问（静态打开仅可查看）");
+  });
+}
+function closeSettings(){ document.getElementById("settingsModal").classList.add("hidden"); }
+function _parseLines(v){ return String(v||"").split(/[,\n，]/).map(s=>s.trim()).filter(Boolean); }
+function saveSettings(){
+  const body = {
+    keywords: _parseLines(document.getElementById("setKeywords").value),
+    exclude_words: _parseLines(document.getElementById("setExclude").value),
+    days_window: document.getElementById("setDays").value === "" ? null : Math.max(1, parseInt(document.getElementById("setDays").value||"1", 10)),
+  };
+  fetch("/settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+    .then(r=>r.json()).then(j=>{
+      toast(j.message || "已保存"); closeSettings();
+    }).catch(e=>{ toast("保存失败（需通过 serve.py 启动）：" + String(e)); });
+}
+function resetSettings(){
+  if(!confirm("确认恢复默认配置？")) return;
+  fetch("/settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"reset"})})
+    .then(r=>r.json()).then(j=>{
+      toast(j.message || "已恢复默认"); closeSettings();
+    }).catch(e=>{ toast("恢复失败（需通过 serve.py 启动）：" + String(e)); });
+}
+
 const _d = new Date();
 document.getElementById("hdrDate").textContent = "日期 " + _d.getFullYear() + "-" + String(_d.getMonth()+1).padStart(2,"0") + "-" + String(_d.getDate()).padStart(2,"0");
 document.getElementById("genTime").textContent = "生成时间 " + new Date().toLocaleString("zh-CN");

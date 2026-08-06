@@ -20,6 +20,7 @@ import time
 import requests
 
 from common import load_config, project_path
+import settings
 
 
 QUERY_URL = "http://www.cninfo.com.cn/new/hisAnnouncement/query"
@@ -84,8 +85,8 @@ def _to_announcement(item, keyword):
 def crawl(keywords=None, days=None, max_pages=None, column="szse"):
     cfg = load_config()
     crawl_cfg = cfg["crawl"]
-    keywords = keywords or crawl_cfg["keywords"]
-    days = days or crawl_cfg["days_window"]
+    keywords = keywords or settings.effective_keywords(crawl_cfg["keywords"])
+    days = days or settings.effective_days_window(crawl_cfg["days_window"])
     max_pages = max_pages or crawl_cfg["max_pages"]
     today = datetime.date.today()
     start = today - datetime.timedelta(days=days)

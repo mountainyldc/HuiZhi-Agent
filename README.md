@@ -1,72 +1,47 @@
-# 工银汇智 · 企业外汇智能体（基于 Pi Coding Agent）
+# 工银汇智 · 企业外汇智能体（ICBC HuiZhi Agent）
 
-> 项目统一目录：`E:\2026工行实习\基于picoding-agent的企业外汇需求商机雷达agent实现`
-> GitHub：https://github.com/mountainyldc/ICBC-HuiZhi-Agent （clone 即用）
-> 更新日期：2026-08-06
-> CI：[![CI](https://github.com/mountainyldc/ICBC-HuiZhi-Agent/actions/workflows/ci.yml/badge.svg)](https://github.com/mountainyldc/ICBC-HuiZhi-Agent/actions/workflows/ci.yml)
+> 基于 Pi Coding Agent 的企业外汇需求商机雷达 Agent
+>
+> [![CI](https://github.com/mountainyldc/ICBC-HuiZhi-Agent/actions/workflows/ci.yml/badge.svg)](https://github.com/mountainyldc/ICBC-HuiZhi-Agent/actions/workflows/ci.yml) · [MIT License](LICENSE)
 
-## 项目定位
-帮金融市场部客户经理自动发现"潜在有结售汇需求的公司"：自动抓取公开数据 → 关键字 + 大模型语义过滤
-→ 每日输出潜在客户清单（判定依据 + 潜在业务 + 最新年报数据 + 建议沟通重点）。**不是量化交易**（见 00-背景.md）。
+面向商业银行金融市场部客户经理的外汇获客智能体：自动抓取公开数据 → 规则初筛 + 大模型复核 → 每日输出潜在外汇业务客户清单（判定依据 + 潜在业务 + 最新年报数据 + 建议沟通重点）。
 
-## 核心文档（后续只维护这两份）
+## 功能
+
+- **商机雷达全流程**：一句话（/radar）触发「抓取 → 规则初筛 → LLM 复核 → 队列 → 渲染」，接入 9 类数据源（巨潮资讯、新浪财经、东方财富 7x24、同花顺直播、港交所披露易、商务部机电产品国际招标、广东省投资项目在线审批监管平台等）
+- **RAG 可溯源问答**：FTS5 BM25 + Embedding + FAISS + RRF 混合检索，回答带 [来源N] 可点击溯源，支持单公司深度分析
+- **企业画像**：法人 / 注册地 / 年报外汇指标；营收 / 出口占比 / 外汇敞口方向等 6 字段画像
+- **营销辅助**：拜访话术生成器、跨轮次会话记忆、按需实时 Web 搜索、意图路由
+- **Web 看板**：商机队列、资讯中心、企业档案、规则过滤词设置，支持认领 / 标记无效
+
+## 仓库结构
+
 ```
-00-背景.md        # 唯一背景文档：定位/为什么不是量化/交易员现状/痛点/名词
-01-数据源清单.md  # 唯一数据源文档：识别逻辑/四类数据源/MVP/待确认问题
-```
-
-## 规划文档
-```
-02-问题定义.md    # 交付物/硬约束/隐含要求/完成标准/风险点（✅）
-03-可行方案.md    # 方案A/B/C 对比，选定方案B（Pi Agent 编排）（✅）
-04-系统骨架.md    # 模块/目录/接口/数据结构/时序/边界（✅）
-05-演示视频录制流程.md  # 录屏完整流程（✅）
-06-自由提问与分析拓展计划.md  # 形态A + 4 个新工具设计（计划未实施）
+ICBC-HuiZhi-Agent/   # 智能体本体：Pi 扩展 + skills + Python 引擎 + Web 看板
+pi-web/              # Pi Web 桌面端（已定制 ICBC 标识）
 ```
 
-## 代码（✅ 已实现，单仓库 clone 即用）
-```
-ICBC-HuiZhi-Agent/    # 商机雷达本体：Pi 扩展 + skills + 9 个引擎 + 苹果风 Web 页面
-  README.md       # 使用说明（快速开始 / 接口一览 / 边界）
-pi-web/           # Pi Web 桌面端（已定制 ICBC 标识），clone 后 npm install 即可用
-```
-
-## 一条命令体验（clone 即用）
+## 快速开始
 
 ```bash
 git clone https://github.com/mountainyldc/ICBC-HuiZhi-Agent.git
 cd ICBC-HuiZhi-Agent
 
-# 商机雷达 Web（Python 3.10+，自动播种数据）
+# 商机雷达 Web（Python 3.10+，启动时自动播种数据）
 pip install -r ICBC-HuiZhi-Agent/requirements.txt
-cd ICBC-HuiZhi-Agent && python engines/serve.py     # 打开 http://127.0.0.1:8000
+cd ICBC-HuiZhi-Agent && python engines/serve.py   # 打开 http://127.0.0.1:8000
 
-# Pi Web 桌面端（Node.js >= 22.19，配置 DeepSeek 后可直接对话/跑雷达）
-cd ../pi-web
-npm install && npm run build && npm start       # 打开 http://127.0.0.1:30141
+# Pi Web 桌面端（Node.js >= 22.19，配置 DeepSeek 后可直接对话 / 跑雷达）
+cd ../pi-web && npm install && npm run build && npm start  # 打开 http://127.0.0.1:30141
 ```
 
-## 2026-08-06 更新（新功能一批 6 个）
-- **看板「设置」**：右上角 ⚙ 设置 → 生效关键词/排除词/时间窗口，持久化 + 一键恢复默认，下次运行生效（`settings.py` + `/settings` 接口）
-- **企业画像 · 拜访前必看画像卡**：聚合公告+年报+舆情生成 6 字段画像（营收/出口/境外子公司/敞口方向/历史套保/建议产品），字段带来源与披露日期，未披露标「未披露」（`build_insights.py` + 详情页 ★ 卡片）
-- **拜访话术生成器**：30 秒开场白 + 拜访提纲 + 产品建议 + 异议应对，事实可追溯（`visit_pitch.py` + 详情页按钮 + `/pitch`）
-- **跨轮次记忆**：记住最近分析的公司，追问可指代；可查看/清除（`memory.py` + memory_status/clear_memory 工具）
-- **按需实时 Web 搜索**：`web_search` 工具实时联网（Exa→so.com→降级提示），结果带来源链接并标注「网络信息，需人工核验」
-- **意图路由 · 动态规划**：`dispatch` 工具把问法路由到对应工具链（规则判断，稳定可解释）
-- Pi 扩展工具从 11 个扩展到 18 个
+详细使用说明见 [ICBC-HuiZhi-Agent/README.md](ICBC-HuiZhi-Agent/README.md)。
 
-## 2026-08-05 更新- 页面改为苹果风配色（浅灰 `#F5F5F7` + 白色圆角卡片 + 蓝/绿/紫/橙点缀，红色仅 ICBC 徽标）
-- 新增**资讯中心**：公告+舆情聚合检索（搜索/来源筛选/时间窗口/分页/一键更新）
-- 新增**03 最新年报数据**：从巨潮年报 PDF 提取汇兑损益等外汇指标（`fetch_financials.py`）
-- 新增**潜在业务判断**卡片：汇率避险 / 对外付款 / 对外收款 / 跨境结算（`infer_biz`）
-- serve.py 启动时自动播种数据（clone 即用），新增 `/news`、`/financials` 接口
-- pi-web 桌面端已定制 ICBC 标识并推送：https://github.com/agegr/pi-web
+## 开发
 
-## 参考素材（docs/，行内内部资料不入库）
-- `金融市场部AI赋能需求分析.md`、`交易员访谈_痛点与场景.md`、`7-29金融市场部谈话.docx`
+- 测试：`cd ICBC-HuiZhi-Agent && python -X utf8 -m pytest tests/ -q`（26 个用例）
+- 变更记录：[CHANGELOG.md](CHANGELOG.md) · 贡献指南：[CONTRIBUTING.md](CONTRIBUTING.md)
 
-## 待办
-- [ ] 与导师确认 7 个问题（见 01-数据源清单.md）
-- [ ] 巨潮接口稳定性观察（已加重试+样例兜底）
-- [ ] 广东企业名单持续维护（engines/region_allowlist.csv）
-- [ ] 资讯中心数据源扩展到 14 个（当前 3 类：巨潮/新浪/东财）
+## 免责声明
+
+本项目为实习期技术原型，仅用于学习交流；数据抓取自公开渠道，输出不构成投资建议。

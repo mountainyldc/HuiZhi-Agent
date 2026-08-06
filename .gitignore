@@ -10,3 +10,7 @@ Thumbs.db
 .vscode/
 *.tmp
 *.log
+# 内部流程/实习材料（本地保留，不入库）
+/[0-9][0-9]-*.md
+ClaudeCode-Agent-Loop.png
+adr/

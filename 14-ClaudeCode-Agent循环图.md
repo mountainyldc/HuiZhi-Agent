@@ -1,6 +1,6 @@
 # Claude Code Agent 底层循环原理图（mermaid 版）
 
-> 用途：面试讲解 / PPT 架构页。渲染图见 `docs/claude-code-agent-loop.png`（横版，可直接插入 PPT）。
+> 用途：面试讲解 / PPT 架构页。渲染图见 `ClaudeCode-Agent-Loop.png`（横版，可直接插入 PPT）。
 
 ## 图（mermaid 源码，可在 GitHub / mermaid.live 直接渲染）
 

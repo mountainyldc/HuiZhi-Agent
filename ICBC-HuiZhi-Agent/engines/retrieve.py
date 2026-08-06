@@ -17,7 +17,6 @@ import requests
 
 from common import load_config, project_path
 import store
-from index_docs import _load_embed_key, faiss_read
 
 RRF_K = 60
 
@@ -67,8 +66,13 @@ def vec_search(cfg, api_key, query, company=None, top_k=10):
     if not os.path.exists(index_path) or not os.path.exists(ids_path):
         print("[warn] 未找到 FAISS 索引，跳过向量检索", file=sys.stderr)
         return []
-    import faiss
-    import numpy as np
+    try:
+        import faiss
+        import numpy as np
+        from index_docs import faiss_read
+    except ImportError as exc:
+        print(f"[warn] 向量检索依赖缺失（{exc}），跳过向量检索", file=sys.stderr)
+        return []
 
     vec = embed_query(query, cfg, api_key)
     if vec is None:
@@ -103,7 +107,11 @@ def fuse(fts_hits, vec_hits, top_n=5):
 
 def retrieve(query, company=None, top_n=5, verbose=False):
     cfg = load_config()
-    api_key = _load_embed_key(cfg)
+    try:
+        from index_docs import _load_embed_key
+        api_key = _load_embed_key(cfg)
+    except ImportError:
+        api_key = None
     if not api_key:
         print("[warn] 无 Embedding Key，仅 BM25 检索", file=sys.stderr)
 

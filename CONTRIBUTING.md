@@ -6,7 +6,7 @@
 
 ```bash
 # Python 3.10+
-pip install -r ICBC-HuiZhi-Agent/requirements.txt
+pip install -r HuiZhi-Agent/requirements.txt
 
 # 可选环境变量（缺失时自动降级，不影响核心流程）
 set DEEPSEEK_API_KEY=sk-xxx     # LLM 复核 / RAG 问答
@@ -19,7 +19,7 @@ cd pi-web && npm install
 ## 跑测试
 
 ```bash
-cd ICBC-HuiZhi-Agent
+cd HuiZhi-Agent
 python -X utf8 -m pytest tests/ -q
 ```
 
@@ -28,7 +28,7 @@ python -X utf8 -m pytest tests/ -q
 
 ## 代码规范
 
-- 业务逻辑放 `ICBC-HuiZhi-Agent/engines/` 的 Python 引擎，Pi 扩展只做桥接（安全边界）
+- 业务逻辑放 `HuiZhi-Agent/engines/` 的 Python 引擎，Pi 扩展只做桥接（安全边界）
 - 配置走 `config.yaml`，运行期可调参数走 `settings.py`（持久化 `data/settings.json`）
 - 新增引擎或工具时同步更新 README、CHANGELOG 与对应文档
 

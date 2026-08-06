@@ -5,8 +5,8 @@
  *   多源抓取(公告+舆情) -> 规则初筛评分 -> 大模型复核 -> 生成队列 -> 渲染页面 -> 认领/标记无效
  *
  * 安装方式:
- *   1. 复制到 ~/.pi/agent/extensions/ICBC-HuiZhi-Agent.ts
- *   2. 或: pi -e ./extensions/ICBC-HuiZhi-Agent.ts
+ *   1. 复制到 ~/.pi/agent/extensions/huizhi-agent.ts
+ *   2. 或: pi -e ./extensions/huizhi-agent.ts
  *
  * 依赖: Python 3 (需 requests / openai / PyYAML)
  */
@@ -37,7 +37,7 @@ const ENGINES_DIR = resolveEnginesDir();
 function resolveEnginesForCwd(cwd: string | undefined): string {
   if (cwd) {
     const candidates = [
-      join(cwd, "ICBC-HuiZhi-Agent", "engines"),
+      join(cwd, "HuiZhi-Agent", "engines"),
       join(cwd, "engines"),
     ];
     for (const c of candidates) {
@@ -212,7 +212,7 @@ const startServerTool = {
     const isCurrentPage = async (base: string) => {
       const port = Number(new URL(base).port) || 80;
       const r = await probe(port, 1500);
-      return r.alive && (r.text.includes("ICBC") || r.text.includes("中国工商银行"));
+      return r.alive && (r.text.includes("HuiZhi") || r.text.includes("中国工商银行"));
     };
     const isFree = async (port: number) => !(await probe(port, 800)).alive;
     // 1) 已有新版页面服务在跑，直接复用
@@ -240,7 +240,7 @@ const startServerTool = {
           return { content: [{ type: "text", text: `预览服务已启动：${base}\n浏览器打开即可查看并保存商机雷达页面。` }], isError: false };
         }
       }
-      return { content: [{ type: "text", text: `服务启动中，请稍后访问 ${base}（若仍打不开：cd ICBC-HuiZhi-Agent && python engines/serve.py）` }], isError: true };
+      return { content: [{ type: "text", text: `服务启动中，请稍后访问 ${base}（若仍打不开：cd HuiZhi-Agent && python engines/serve.py）` }], isError: true };
     }
     return { content: [{ type: "text", text: "8000-8009 端口均不可用，请手动运行 python engines/serve.py 后访问" }], isError: true };
   },

@@ -683,7 +683,7 @@ export function AppShell() {
               </svg>
             )}
           </button>
-          {/* ICBC 品牌标识 */}
+          {/* 品牌标识 */}
           <div
             style={{
               display: "flex", alignItems: "center", gap: 8, height: "100%",
@@ -697,7 +697,7 @@ export function AppShell() {
                 fontFamily: "var(--font-mono)",
               }}
             >
-              ICBC
+              HuiZhi
             </span>
             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text)", whiteSpace: "nowrap" }}>
               工银汇智 · 企业外汇智能体

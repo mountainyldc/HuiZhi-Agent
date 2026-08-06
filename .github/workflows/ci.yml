@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ICBC-HuiZhi-Agent
+        working-directory: HuiZhi-Agent
     steps:
       - uses: actions/checkout@v4
 

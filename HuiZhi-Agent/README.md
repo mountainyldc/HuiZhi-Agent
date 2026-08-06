@@ -1,4 +1,4 @@
-# ICBC-HuiZhi-Agent — 工银汇智 · 企业外汇智能体（Pi Agent 编排）
+# HuiZhi-Agent — 工银汇智 · 企业外汇智能体（Pi Agent 编排）
 
 基于 Pi Coding Agent 的商机雷达：自动抓取公开数据 → 规则初筛（广东企业 + 外汇套保 + 45 天）
 → 5 维评分 → DeepSeek 大模型复核 → 生成每日商机队列 → 渲染 Web 页面 → 认领 / 标记无效。
@@ -16,8 +16,8 @@
 
 ```bash
 # 1. 克隆
-git clone https://github.com/mountainyldc/ICBC-HuiZhi-Agent.git
-cd ICBC-HuiZhi-Agent
+git clone https://github.com/mountainyldc/HuiZhi-Agent.git
+cd HuiZhi-Agent
 
 # 2. 依赖（Python 3.10+）
 pip install -r requirements.txt        # requests / openai / pyyaml / pypdf
@@ -70,7 +70,7 @@ python engines/serve.py                 # 打开 http://127.0.0.1:8000
 
 ## Pi Web（桌面端）用法
 
-Pi Web 已整合进本仓库的 `../pi-web`（已定制 ICBC 标识，含中文快速开始与 DeepSeek 配置教程）：
+Pi Web 已整合进本仓库的 `../pi-web`（已定制品牌标识，含中文快速开始与 DeepSeek 配置教程）：
 
 ```bash
 cd ../pi-web
@@ -83,7 +83,7 @@ npm start            # 打开 http://127.0.0.1:30141
 2. 左侧 `Select project...` 选择本仓库目录，聊天框输入 **`跑一遍企业外汇需求商机雷达`**
 3. 流程跑完后另开终端：
    ```bash
-   cd ICBC-HuiZhi-Agent
+   cd HuiZhi-Agent
    python engines/serve.py   # 打开 http://127.0.0.1:8000 看商机队列
    ```
 
@@ -91,7 +91,7 @@ npm start            # 打开 http://127.0.0.1:30141
 
 ```bash
 # 加载扩展（注册工具 + /radar 命令）
-pi -e ./extensions/icbc-huizhi-agent.ts
+pi -e ./extensions/huizhi-agent.ts
 
 # 在 Pi 中说一句话跑全流程：
 #   "跑一遍企业外汇需求商机雷达"
@@ -111,13 +111,13 @@ pi -e ./extensions/icbc-huizhi-agent.ts
 # 记忆说明：分析过某公司后，追问「那它的子公司呢」会自动指代上一家公司。
 ```
 
-扩展安装到全局：复制 `extensions/icbc-huizhi-agent.ts` 到 `~/.pi/agent/extensions/`。
+扩展安装到全局：复制 `extensions/huizhi-agent.ts` 到 `~/.pi/agent/extensions/`。
 
 ## 目录结构
 
 ```
-extensions/ICBC-HuiZhi-Agent.ts   # Pi 扩展：工具 + /radar 命令
-skills/ICBC-HuiZhi-Agent/SKILL.md # 业务知识 + 工具用法
+extensions/huizhi-agent.ts   # Pi 扩展：工具 + /radar 命令
+skills/huizhi-agent/SKILL.md # 业务知识 + 工具用法
 skills/workflow/SKILL.md      # 全流程编排指令
 engines/
   crawl_cninfo.py     # ① 巨潮公告抓取（关键词+45天，失败回退样例）

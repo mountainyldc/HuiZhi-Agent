@@ -285,7 +285,7 @@ const analyzeCompanyTool = {
   async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
     const ed = resolveEnginesForCwd(ctx?.cwd);
     const q = params.question || `分析${params.company}的外汇需求与潜在业务机会`;
-    const args = ["--company", params.company, "--query", q, "--json"];
+    const args = ["--company", params.company, "--query", q, "--json", "--remember", "--with-memory"];
     if (params.top) args.push("--top", String(params.top));
     return runRagAnswer(args, ed);
   },
@@ -309,9 +309,52 @@ const askInsightsTool = {
   }),
   async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
     const ed = resolveEnginesForCwd(ctx?.cwd);
-    const args = ["--query", params.question, "--json"];
+    const args = ["--query", params.question, "--json", "--remember", "--with-memory"];
     if (params.top) args.push("--top", String(params.top));
     return runRagAnswer(args, ed);
+  },
+};
+
+const companyInsightTool = {
+  name: "company_insight",
+  label: "查询企业画像卡",
+  description:
+    "查询某上市公司的「拜访前必看画像卡」：营收规模、出口占比、境外子公司、外汇敞口方向、历史套保记录、建议切入产品、置信度。" +
+    "画像由 build_insights.py 基于公告+年报+舆情生成，字段均带来源与披露日期，未披露标「未披露」。",
+  promptSnippet: "查询某公司的企业画像卡",
+  promptGuidelines: [
+    "company 必填（公司全名，如 东鹏饮料）",
+    "若返回 exists=false，说明画像尚未生成，提示用户可运行 build_insights.py 生成",
+  ],
+  parameters: Type.Object({
+    company: Type.String({ description: "公司名称，如：东鹏饮料" }),
+  }),
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    return runPython("build_insights.py", ["--company", params.company, "--show"], resolveEnginesForCwd(ctx?.cwd));
+  },
+};
+
+const memoryStatusTool = {
+  name: "memory_status",
+  label: "查看会话记忆",
+  description: "查看当前跨轮次会话记忆：最近分析过的公司、关注区域。记忆仅存公司/区域名，不含个人信息。",
+  promptSnippet: "查看跨轮次会话记忆",
+  promptGuidelines: ["记忆用于连续追问时理解指代（如「那它的子公司呢」）"],
+  parameters: Type.Object({}),
+  async execute(_toolCallId?: string, _params?: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    return runPython("memory.py", [], resolveEnginesForCwd(ctx?.cwd));
+  },
+};
+
+const clearMemoryTool = {
+  name: "clear_memory",
+  label: "清除会话记忆",
+  description: "清除跨轮次会话记忆（最近分析的公司、关注区域），用户要求重置上下文时使用。",
+  promptSnippet: "清除会话记忆",
+  promptGuidelines: ["清除后追问指代将不再回退到旧公司"],
+  parameters: Type.Object({}),
+  async execute(_toolCallId?: string, _params?: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    return runPython("memory.py", ["--clear"], resolveEnginesForCwd(ctx?.cwd));
   },
 };
 
@@ -360,6 +403,9 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
   pi.registerTool(startServerTool);
   pi.registerTool(analyzeCompanyTool);
   pi.registerTool(askInsightsTool);
+  pi.registerTool(companyInsightTool);
+  pi.registerTool(memoryStatusTool);
+  pi.registerTool(clearMemoryTool);
 
   pi.registerCommand("radar", {
     description: "跑一遍企业外汇需求商机雷达全流程",
@@ -378,10 +424,12 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
 
   pi.on("session_start", async (_event, ctx) => {
     ctx.ui.notify(
-      "🛰️ 企业外汇需求商机雷达已就绪 | 11 tools\n" +
+      "🛰️ 企业外汇智能体已就绪 | 15 tools\n" +
       "  流程: crawl_cninfo / crawl_news / rule_screen / review_opportunity / build_daily_queue / render_web / start_server\n" +
       "  动作: claim_opportunity / mark_invalid\n" +
       "  RAG: analyze_company / ask_insights（证据级智能问答）\n" +
+      "  画像: company_insight（拜访前必看画像卡）\n" +
+      "  记忆: memory_status / clear_memory（跨轮次，追问可指代）\n" +
       "  命令: /radar",
       "info"
     );

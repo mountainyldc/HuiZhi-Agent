@@ -34,6 +34,8 @@ def render(input_path=None, out=None):
     import store
     profiles = {p["company"]: p for p in store.list_profiles(limit=500)}
     html = html.replace("__PROFILES_JSON__", json.dumps(profiles, ensure_ascii=False))
+    insights = {i["company"]: i for i in store.list_insights(limit=500)}
+    html = html.replace("__INSIGHTS_JSON__", json.dumps(insights, ensure_ascii=False))
     out = out or project_path(cfg["web"]["output"])
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:

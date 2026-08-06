@@ -180,6 +180,20 @@
   .eye:hover { opacity: 1; }
   .news-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; flex-shrink: 0; }
   .page-btns { display: flex; gap: 8px; }
+  .pitch-sec { margin-bottom: 12px; }
+  .ps-k { font-size: 12px; color: var(--ink-3); font-weight: 650; margin-bottom: 5px; }
+  .ps-v { font-size: 13.5px; line-height: 1.8; color: var(--ink); background: #F5F3EC; border-radius: 8px; padding: 10px 12px; }
+  .pitch-body ul.qlist li { padding-left: 0; }
+  .insight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .icell { background: #F5F3EC; border-radius: 10px; padding: 10px 12px; min-height: 74px; }
+  .icell .ik { font-size: 11px; color: var(--ink-3); margin-bottom: 5px; }
+  .icell .iv { font-size: 13px; font-weight: 650; color: var(--ink); line-height: 1.5; }
+  .icell .isrc { font-size: 10.5px; color: var(--ink-3); margin-top: 5px; line-height: 1.45; }
+  .conf-chip { display: inline-block; font-size: 11px; font-weight: 650; padding: 3px 10px; border-radius: 999px; }
+  .conf-high { color: var(--green); background: var(--green-bg); }
+  .conf-mid { color: var(--orange); background: var(--orange-bg); }
+  .conf-low, .conf-未披露 { color: var(--ink-2); background: #EFEDE6; }
+  .src-note { font-size: 12px; color: var(--ink-2); margin-top: 10px; line-height: 1.6; }
   .modal-mask { position: fixed; inset: 0; background: rgba(43,40,31,.42); display: flex; align-items: center; justify-content: center; z-index: 80; }
   .modal { width: 560px; max-width: calc(100vw - 48px); max-height: calc(100vh - 80px); overflow: auto; background: var(--card); border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.25); padding: 22px 24px; }
   .modal h3 { font-size: 16px; font-weight: 750; margin-bottom: 4px; }
@@ -310,6 +324,7 @@
 <script>
 const data = __SNAPSHOT_JSON__; const items = Array.isArray(data) ? data : (data.items || []);
 const profiles = __PROFILES_JSON__ || {};
+const insights = __INSIGHTS_JSON__ || {};
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function tagClass(t){
   if (t.includes("外汇") || t.includes("套保")) return "t1";
@@ -407,6 +422,32 @@ async function updateFinancials(company){
     toast("年报抓取失败");
   }
 }
+function _insightVal(v){
+  let obj = v;
+  if(typeof v === "string"){ try{ obj = JSON.parse(v); }catch(e){ obj = {value:v}; } }
+  if(!obj || typeof obj !== "object") obj = {value: v || "未披露"};
+  const val = String(obj.value || "未披露");
+  const src = (obj.source && obj.source !== "未披露") ? `<div class="isrc">来源：${esc(obj.source)}${obj.date?` · 披露 ${esc(obj.date)}`:""}</div>` : "";
+  return `<div class="iv">${esc(val)}</div>${src}`;
+}
+function insightCard(it){
+  const ins = insights[it.company_name];
+  if(!ins) return `<div class="card"><h3><span class="no">★</span>企业画像 · 拜访前必看</h3><div class="fin-empty">暂无画像卡。可在 Pi 对话中输入「分析 ${esc(it.company_name)}」自动生成，或运行 <code>python engines/build_insights.py --company ${esc(it.company_name)}</code>。</div></div>`;
+  const cells = [
+    ["营收规模", ins.revenue_scale], ["出口占比", ins.export_ratio],
+    ["境外子公司", ins.overseas_subsidiaries], ["外汇敞口方向", ins.fx_exposure_direction],
+    ["历史套保", ins.hedge_history], ["建议产品", ins.recommended_products],
+  ];
+  const conf = String(ins.confidence || "未披露");
+  const confCls = conf==="高" ? "conf-high" : (conf==="中" ? "conf-mid" : "conf-low");
+  const grid = cells.map(([k,v])=>`<div class="icell"><div class="ik">${esc(k)}</div>${_insightVal(v)}</div>`).join("");
+  return `<div class="card"><h3><span class="no">★</span>企业画像 · 拜访前必看
+      <span class="conf-chip ${confCls}" style="margin-left:10px">置信度 ${esc(conf)}</span></h3>
+    <div class="insight-grid">${grid}</div>
+    ${ins.source_note?`<div class="src-note">📌 ${esc(ins.source_note)}</div>`:""}
+    ${ins.updated_at?`<div class="foot">生成于 ${esc(ins.updated_at)} · 画像与公告原文矛盾时以公告原文为准</div>`:""}
+  </div>`;
+}
 function profileCard(it){
   const p = profiles[it.company_name];
   if(!p) return `<div class="card"><h3><span class="no">0</span>企业档案</h3><div class="fin-empty">暂无年报档案（可在「最新年报数据」处更新抓取）</div></div>`;
@@ -456,6 +497,7 @@ function showDetail(id){
           </div>
         </div>
         <div class="hero-actions">
+          <button class="btn" onclick="genPitch('${esc(it.company_name)}')" style="border-color:var(--purple);color:var(--purple)">🎯 拜访话术</button>
           <button class="btn invalid" onclick="action('${it.opportunity_id}','invalid')">标记无效</button>
           <button class="btn claim" onclick="action('${it.opportunity_id}','claim')">确认有效</button>
         </div>
@@ -465,6 +507,8 @@ function showDetail(id){
     </div>
 
     ${profileCard(it)}
+
+    ${insightCard(it)}
 
     <div class="card"><h3><span class="no">1</span>触发事件</h3>
       <div class="trigger">${esc(it.trigger_event)}
@@ -490,6 +534,10 @@ function showDetail(id){
 
     <div class="card"><h3><span class="no">4</span>建议沟通重点</h3>
       <ol class="qlist">${(rev.suggested_questions||[]).map(q=>`<li>${esc(q)}</li>`).join("")||"<li>（暂无）</li>"}</ol>
+    </div>
+
+    <div class="card"><h3><span class="no">4+</span>拜访话术</h3>
+      <div id="pitchBody"><div class="fin-empty">点击右上角「🎯 拜访话术」为 ${esc(it.company_name)} 生成 30 秒开场白 + 拜访提纲 + 产品建议 + 异议应对。</div></div>
     </div>
 
     <div class="card"><h3><span class="no">5</span>判断依据</h3>
@@ -541,6 +589,38 @@ function renderKPIs(){
   document.getElementById("kVerifying").textContent = items.filter(i=>i.lifecycle==="verifying").length;
   document.getElementById("kClaimed").textContent = items.filter(i=>i.owner).length;
 }
+/* ---- 拜访话术 ---- */
+async function genPitch(company){
+  const box = document.getElementById("pitchBody");
+  if(!box || !company) return;
+  box.innerHTML = `<div class="fin-empty">正在生成拜访话术（检索证据 + DeepSeek），约 10-30 秒…</div>`;
+  try{
+    const r = await fetch("/pitch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({company})});
+    if(!r.ok){ const j = await r.json().catch(()=>({})); throw new Error(j.error || ("http "+r.status)); }
+    const j = await r.json();
+    box.innerHTML = renderPitch(j);
+  }catch(e){
+    box.innerHTML = `<div class="fin-empty">话术生成失败：${esc(String(e))}<br>请确认已配置 DEEPSEEK_API_KEY 并通过 python serve.py 访问。</div>`;
+  }
+}
+function renderPitch(p){
+  const opening = p.opening || "";
+  const outline = (p.outline||[]).map(s=>`<li>${esc(typeof s==="string"?s:(s.title||s))}</li>`).join("");
+  const products = (p.products||[]).map(s=>`<li>${esc(typeof s==="string"?s:(s.title||s))}</li>`).join("");
+  const obj = (p.objections||[]).map(s=>{
+    if(typeof s === "string") return `<li>${esc(s)}</li>`;
+    return `<li><b>客户：</b>${esc(s.client||"")}<br><b>回应：</b>${esc(s.response||"")}</li>`;
+  }).join("");
+  const facts = (p.key_facts||[]).map(f=>`<li>${esc(f.fact||"")} <span style="color:var(--ink-3);font-size:11px">— ${esc(f.source||"")} ${esc(f.date||"")}</span></li>`).join("");
+  return `
+    <div class="pitch-sec"><div class="ps-k">30 秒电话开场白（可照读）</div><div class="ps-v">${esc(opening)}</div></div>
+    <div class="pitch-sec"><div class="ps-k">上门拜访提纲</div><ol class="qlist">${outline||"<li>（无）</li>"}</ol></div>
+    <div class="pitch-sec"><div class="ps-k">产品建议</div><ul class="qlist">${products||"<li>（无）</li>"}</ul></div>
+    <div class="pitch-sec"><div class="ps-k">常见异议应对</div><ul class="qlist" style="list-style:none">${obj||"<li>（无）</li>"}</ul></div>
+    ${facts?`<div class="pitch-sec"><div class="ps-k">关键事实（可追溯）</div><ul class="qlist">${facts}</ul></div>`:""}
+    <div class="foot">生成于 ${esc(p.generated_at||"")} · 未标「需核实」的事实均来自检索证据，数字请以原文为准。</div>`;
+}
+
 /* ---- 设置 ---- */
 let settingsData = null;
 function openSettings(){

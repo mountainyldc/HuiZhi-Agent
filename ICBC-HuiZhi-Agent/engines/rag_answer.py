@@ -19,6 +19,7 @@ if sys.platform == 'win32':
 
 from common import load_config
 from retrieve import retrieve
+import memory as conversation_memory
 import store
 
 SYSTEM_PROMPT = (
@@ -46,7 +47,7 @@ def detect_company(query):
     return None
 
 
-def build_messages(query, evidence):
+def build_messages(query, evidence, memory_note=None):
     blocks = []
     for i, e in enumerate(evidence, start=1):
         blocks.append(
@@ -54,7 +55,10 @@ def build_messages(query, evidence):
             f"标题：{e['title']}\n日期：{e['publish_date']}\n链接：{e['url']}\n"
             f"内容：{e['text']}"
         )
-    user = "以下是检索到的公开公告证据：\n\n" + "\n\n".join(blocks) + "\n\n问题：" + query
+    ctx = ""
+    if memory_note:
+        ctx = "以下是本次会话的上下文记忆（仅用于理解指代，不得把记忆内容当成当前问题的证据）：\n" + memory_note + "\n\n"
+    user = "以下是检索到的公开公告证据：\n\n" + "\n\n".join(blocks) + "\n\n" + ctx + "问题：" + query
     return [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": user},
@@ -81,7 +85,7 @@ def linkify_sources(text, evidence):
     return _SRC_RE.sub(_repl, text), replaced["n"]
 
 
-def answer(query, company=None, top_n=5, dry_run=False, verbose=False):
+def answer(query, company=None, top_n=5, dry_run=False, verbose=False, remember=False, with_memory=False):
     cfg = load_config()
     llm = cfg["rag"]["llm"]
     key = os.environ.get(llm["api_key_env"])
@@ -90,11 +94,16 @@ def answer(query, company=None, top_n=5, dry_run=False, verbose=False):
         return None
     if company is None:
         company = detect_company(query)
+    if remember and company:
+        conversation_memory.remember_company(company)
+    memory_note = None
+    if with_memory:
+        memory_note = conversation_memory.format_memory()
     evidence = retrieve(query, company=company, top_n=top_n, verbose=verbose)
     if not evidence:
         print("[result] 无检索证据，无法回答")
         return None
-    messages = build_messages(query, evidence)
+    messages = build_messages(query, evidence, memory_note=memory_note)
     if dry_run:
         print(json.dumps(messages, ensure_ascii=False, indent=2))
         return {"company": company, "dry_run": True, "messages": messages}
@@ -128,9 +137,12 @@ def main():
     ap.add_argument("--top", type=int, default=5)
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--remember", action="store_true", help="记住分析过的公司（跨轮次记忆）")
+    ap.add_argument("--with-memory", action="store_true", help="回答时注入会话记忆上下文")
     args = ap.parse_args()
 
-    res = answer(args.query, company=args.company, top_n=args.top, dry_run=args.dry_run)
+    res = answer(args.query, company=args.company, top_n=args.top, dry_run=args.dry_run,
+                  remember=args.remember, with_memory=args.with_memory)
     if res is None:
         sys.exit(1)
     if args.dry_run:

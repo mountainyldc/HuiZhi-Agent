@@ -125,6 +125,29 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, {"error": "not found"})
 
     def do_POST(self):
+        if self.path == "/pitch":
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(n).decode("utf-8")) if n else {}
+                company = (body.get("company") or "").strip()
+                if not company:
+                    self._send(400, {"error": "缺少 company 参数"})
+                    return
+                r = subprocess.run(
+                    [sys.executable, project_path("engines", "visit_pitch.py"),
+                     "--company", company, "--json"],
+                    cwd=project_path(), timeout=180, capture_output=True, text=True,
+                )
+                if r.returncode != 0:
+                    self._send(500, {"error": (r.stderr or r.stdout or "生成失败").strip()[:500]})
+                    return
+                import json as _json
+                data = _json.loads(r.stdout)
+                data["company"] = company
+                self._send(200, data)
+            except Exception as exc:
+                self._send(500, {"error": f"话术生成失败：{exc}"})
+            return
         if self.path == "/settings":
             try:
                 n = int(self.headers.get("Content-Length", 0))

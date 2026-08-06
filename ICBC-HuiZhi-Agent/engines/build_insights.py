@@ -170,7 +170,10 @@ def save_insight(company, parsed):
     for k in ("revenue_scale", "export_ratio", "overseas_subsidiaries",
               "fx_exposure_direction", "hedge_history", "recommended_products"):
         record[k] = json.dumps(_norm_field(parsed.get(k)), ensure_ascii=False)
-    record["confidence"] = str(parsed.get("confidence") or "未披露")
+    conf = parsed.get("confidence")
+    if isinstance(conf, dict):
+        conf = conf.get("value")
+    record["confidence"] = str(conf or "未披露")
     record["source_note"] = str(parsed.get("source_note") or "")
     record["updated_at"] = datetime.datetime.now().isoformat(timespec="seconds")
     store.upsert_insight(record)

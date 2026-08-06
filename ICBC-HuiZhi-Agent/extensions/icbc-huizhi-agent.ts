@@ -315,6 +315,69 @@ const askInsightsTool = {
   },
 };
 
+const visitPitchTool = {
+  name: "visit_pitch",
+  label: "生成拜访话术",
+  description:
+    "为某家上市公司生成拜访话术：30秒电话开场白（可照读）+ 上门拜访提纲 + 产品建议 + 常见异议应对。" +
+    "具体数字/事实来自检索证据，证据中没有的标「需核实」。适用问题：'帮东鹏饮料生成拜访话术'。",
+  promptSnippet: "生成某公司的拜访话术",
+  promptGuidelines: [
+    "company 必填（公司全名）",
+    "话术输出含关键事实与来源，可直接给客户经理照读",
+  ],
+  parameters: Type.Object({
+    company: Type.String({ description: "公司名称，如：东鹏饮料" }),
+  }),
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    return runPython("visit_pitch.py", ["--company", params.company, "--json"], resolveEnginesForCwd(ctx?.cwd));
+  },
+};
+
+const dispatchTool = {
+  name: "dispatch",
+  label: "意图路由（动态规划）",
+  description:
+    "把用户问法路由到对应工具链：分析公司/跑全流程/生成话术/查画像/查队列/实时搜索/普通问答。" +
+    "规则判断，稳定可解释，输出建议的工具调用顺序。接到复杂任务时先用本工具规划。",
+  promptSnippet: "规划工具链（意图路由）",
+  promptGuidelines: [
+    "无法确定用户意图时先调用本工具",
+    "路由结果含 reason，应向用户说明为什么走这条链路",
+  ],
+  parameters: Type.Object({
+    query: Type.String({ description: "用户的原始问法" }),
+  }),
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    return runPython("dispatch.py", ["--query", params.query, "--json"], resolveEnginesForCwd(ctx?.cwd));
+  },
+};
+
+const webSearchTool = {
+  name: "web_search",
+  label: "实时联网搜索",
+  description:
+    "实时联网搜索（政策/竞品/行业动态等语料库里没有的时效信息），返回带来源链接的结果。" +
+    "每条结果带 URL，输出标注「网络信息，需人工核验」，与公告/年报证据分开标注。" +
+    "适用问题：'最近外汇管理局有什么新政策' '人民币汇率最新走势'。",
+  promptSnippet: "实时联网搜索时效信息",
+  promptGuidelines: [
+    "语料库（公告/年报）查不到的信息才用本工具",
+    "回答时必须保留每条结果的来源链接",
+    "网络信息需在回答中注明「网络信息，需人工核验」，不得当作公告事实",
+    "搜索失败时按返回的降级提示引导用户手工搜索",
+  ],
+  parameters: Type.Object({
+    query: Type.String({ description: "搜索关键词或问题，如：最近外汇管理局有什么新政策" }),
+    n: Type.Optional(Type.Integer({ description: "返回结果条数，默认5" })),
+  }),
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    const args = ["--query", params.query, "--json"];
+    if (params.n) args.push("--n", String(params.n));
+    return runPython("web_search.py", args, resolveEnginesForCwd(ctx?.cwd));
+  },
+};
+
 const companyInsightTool = {
   name: "company_insight",
   label: "查询企业画像卡",
@@ -406,6 +469,9 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
   pi.registerTool(companyInsightTool);
   pi.registerTool(memoryStatusTool);
   pi.registerTool(clearMemoryTool);
+  pi.registerTool(webSearchTool);
+  pi.registerTool(visitPitchTool);
+  pi.registerTool(dispatchTool);
 
   pi.registerCommand("radar", {
     description: "跑一遍企业外汇需求商机雷达全流程",
@@ -424,12 +490,14 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
 
   pi.on("session_start", async (_event, ctx) => {
     ctx.ui.notify(
-      "🛰️ 企业外汇智能体已就绪 | 15 tools\n" +
+      "🛰️ 企业外汇智能体已就绪 | 18 tools\n" +
       "  流程: crawl_cninfo / crawl_news / rule_screen / review_opportunity / build_daily_queue / render_web / start_server\n" +
       "  动作: claim_opportunity / mark_invalid\n" +
       "  RAG: analyze_company / ask_insights（证据级智能问答）\n" +
       "  画像: company_insight（拜访前必看画像卡）\n" +
       "  记忆: memory_status / clear_memory（跨轮次，追问可指代）\n" +
+      "  搜索: web_search（实时联网，来源可点）\n" +
+      "  规划: dispatch（意图路由）/ visit_pitch（拜访话术）\n" +
       "  命令: /radar",
       "info"
     );

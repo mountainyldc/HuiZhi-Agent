@@ -2,8 +2,9 @@
 
 基于 Pi Coding Agent 的商机雷达：自动抓取公开数据 → 规则初筛（广东企业 + 外汇套保 + 45 天）
 → 5 维评分 → DeepSeek 大模型复核 → 生成每日商机队列 → 渲染 Web 页面 → 认领 / 标记无效。
-页面提供**商机雷达**（队列 + 详情 + 潜在业务判断 + 最新年报数据 + 沟通重点）与**资讯中心**
-（搜索 / 来源筛选 / 时间窗口 / 分页）两个视图。数据源：巨潮资讯 · 东方财富 7x24 · 同花顺财经直播 · 新浪财经 · 港交所披露易 · 商务部机电产品国际招标 · 广东省投资项目在线审批监管平台 · 广东省生态环境厅 · 广州/佛山市商务局。
+页面提供**商机雷达**（队列 + 详情 + 潜在业务判断 + 最新年报数据 + 沟通重点 + **企业画像卡** + **拜访话术**）与**资讯中心**
+（搜索 / 来源筛选 / 时间窗口 / 分页）两个视图。2026-08-06 新增：看板**设置**（规则过滤词/排除词/时间窗口）、
+**跨轮次会话记忆**、**按需实时 Web 搜索**、**意图路由 dispatch**，Pi 工具扩展至 18 个。数据源：巨潮资讯 · 东方财富 7x24 · 同花顺财经直播 · 新浪财经 · 港交所披露易 · 商务部机电产品国际招标 · 广东省投资项目在线审批监管平台 · 广东省生态环境厅 · 广州/佛山市商务局。
 
 ## 快速开始（clone 即用）
 
@@ -38,6 +39,11 @@ python engines/build_profiles.py        # 企业档案：年报公司信息 -> �
 python engines/index_docs.py            # 分块 + Embedding(百炼) + FAISS + FTS5
 python engines/retrieve.py --query "外汇套保"     # 混合检索（BM25+向量 RRF 融合）
 python engines/rag_answer.py --query "帮我分析东鹏饮料的外汇需求"  # 带 [来源N] 引用回答
+python engines/build_insights.py --top 20        # 企业画像卡（营收/出口/敞口方向/历史套保/建议产品）
+python engines/visit_pitch.py --company 东鹏饮料 # 拜访话术（开场白/提纲/产品建议/异议应对）
+python engines/web_search.py --query "最近外汇管理局有什么新政策"  # 实时联网搜索（带来源链接）
+python engines/dispatch.py --query "帮我分析东鹏饮料的外汇需求"    # 意图路由（动态规划）
+python engines/memory.py                         # 查看/清除会话记忆（--clear 清除）
 
 # 5. 查看（推荐演示方式：启动服务，认领/标记无效可持久化，资讯中心/年报可在线更新）
 python engines/serve.py                 # 打开 http://127.0.0.1:8000
@@ -90,6 +96,13 @@ pi -e ./extensions/icbc-huizhi-agent.ts
 # RAG 问答（证据级，带 [来源N] 引用）：
 #   analyze_company(company=东鹏饮料)   → 单公司深度分析
 #   ask_insights(question=为什么东鹏排第一) → 自由提问
+# 新功能工具：
+#   company_insight(company=东鹏饮料)   → 企业画像卡（拜访前必看）
+#   visit_pitch(company=东鹏饮料)       → 生成拜访话术
+#   web_search(query=最近外汇管理局有什么新政策) → 实时联网搜索
+#   memory_status / clear_memory        → 跨轮次记忆查看/清除
+#   dispatch(query=...)                 → 意图路由，规划工具链
+# 记忆说明：分析过某公司后，追问「那它的子公司呢」会自动指代上一家公司。
 ```
 
 扩展安装到全局：复制 `extensions/icbc-huizhi-agent.ts` 到 `~/.pi/agent/extensions/`。
@@ -117,7 +130,13 @@ engines/
   build_profiles.py   # RAG-2 企业档案：年报公司信息块解析 -> company_profiles
   index_docs.py       # RAG-3 分块 + 百炼 Embedding -> FAISS + FTS5
   retrieve.py         # RAG-4 混合检索：FTS5 BM25 + FAISS 向量 -> RRF 融合
-  rag_answer.py       # RAG-5 证据拼 Prompt -> DeepSeek -> 带 [来源N] 引用回答
+  rag_answer.py       # RAG-5 证据拼 Prompt -> DeepSeek -> 带 [来源N] 引用回答（支持 --remember/--with-memory）
+  build_insights.py   # 企业画像：公告+年报+舆情 -> DeepSeek -> company_insights 画像卡
+  visit_pitch.py      # 拜访话术：检索证据 -> 开场白/提纲/产品建议/异议应对
+  web_search.py       # 实时搜索：Exa(mcporter) -> so.com -> 降级提示，结果带来源链接
+  dispatch.py         # 意图路由：问法 -> 工具链（规则判断，可解释）
+  memory.py           # 跨轮次记忆：最近分析公司/关注区域（可查看/清除）
+  settings.py         # 看板设置：关键词/排除词/时间窗口持久化 data/settings.json
   render_web.py       # ⑧ 渲染页面（模板引擎：engines/web_template.html）
   serve.py            # ⑨ 演示服务：/action 认领、/financials 年报、/news 资讯中心
   actions.py          # 认领/推进/标记无效 CLI
@@ -138,6 +157,10 @@ config.yaml         # 地区/关键词/窗口/评分权重/LLM 配置
 | `/financials/update` | POST | 强制抓取年报 PDF 并解析指标 |
 | `/news?q=&source=&days=&page=&page_size=` | GET | 资讯中心检索（搜索/来源/时间/分页） |
 | `/news/update` | POST | 重跑爬虫+筛选+渲染 |
+| `/settings` | GET | 读取规则过滤设置（含默认值/生效值） |
+| `/settings` | POST | 保存关键词/排除词/时间窗口（下次运行生效） |
+| `/settings` | POST | `{action:"reset"}` 一键恢复默认 |
+| `/pitch` | POST | `{company:"东鹏饮料"}` 生成拜访话术 |
 
 ## 边界说明（已知不稳，已降级处理）
 

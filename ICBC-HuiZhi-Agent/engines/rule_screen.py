@@ -172,8 +172,9 @@ def rule_screen(input_path=None, region=None):
     created = []
     for ann in anns:
         title0 = ann.get("title", "")
-        if ex_words and any(w in title0 for w in ex_words):
-            continue  # 排除词过滤（设置）
+        stock_name0 = ann.get("stock_name", "")
+        if ex_words and any(w in (title0 + " " + stock_name0) for w in ex_words):
+            continue  # 排除词过滤（设置，匹配标题或公司名）
         source = ann.get("source", "")
         is_news = NEWS_SOURCE_MARK in source
         code = ann.get("stock_code", "")

@@ -5,6 +5,13 @@
 ## [Unreleased]
 - 工程化：pytest 单元测试（26 个用例）+ GitHub Actions CI（py_compile + pytest）+ CHANGELOG / CONTRIBUTING / LICENSE + issue/PR 模板
 
+## 2026-08-09
+### 新增
+- 邮件发送工具：`send_mail.py`，支持商机日报（--daily）与公司商机摘要（--report <公司>）HTML 邮件，可测试连通性（--test）
+- SMTP 配置本地化：环境变量（SMTP_HOST/PORT/USERNAME/PASSWORD）优先，其次 data/mail_config.json（不入库），授权码不入 Git
+- Pi Agent 新工具：send_daily_report / send_company_report，对话内可直接「把今天的商机日报发到我邮箱」
+- dispatch.py 新增邮件意图路由（发送/发到/邮件/邮箱 关键词）
+
 ## 2026-08-06
 ### 新增
 - P0-1 跨轮次会话记忆：`memory.py` + memory_status / clear_memory 工具，追问可指代上一家公司

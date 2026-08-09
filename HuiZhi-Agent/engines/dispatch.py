@@ -37,7 +37,16 @@ def route(query):
             "suggested_tools": ["web_search"],
             "command_hint": None,
         }
-    # 3) 拜访话术
+    # 3) 邮件发送（日报/公司摘要）
+    if re.search(r"(发|发送|发到).{0,8}(邮件|邮箱|日报|报告)", q) or re.search(r"(邮件|邮箱).{0,6}(发|发送)", q):
+        return {
+            "intent": "send_mail",
+            "reason": "命中邮件/发送关键词",
+            "suggested_tools": ["send_daily_report", "send_company_report"],
+            "command_hint": None,
+        }
+    # 4) 拜访话术
+
     if re.search(r"(话术|开场白|拜访提纲|怎么开口|怎么约)", q):
         company = _company(q)
         return {

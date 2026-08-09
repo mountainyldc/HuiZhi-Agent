@@ -38,7 +38,15 @@ def _ensure_seeded():
 def _run_pipeline():
     """更新数据：依次跑爬虫(含样例回退) -> 规则筛选 -> 队列 -> 渲染。返回 {script: ok/fail}。"""
     results = {}
-    for script in ("crawl_cninfo.py", "sina_news.py", "eastmoney_news.py"):
+    for script in (
+        "crawl_cninfo.py",
+        "sina_news.py",
+        "eastmoney_news.py",
+        "crawl_em_feed.py",
+        "crawl_ths.py",
+        "crawl_hkex.py",
+        "crawl_mofcom.py",
+    ):
         try:
             r = subprocess.run(
                 [sys.executable, project_path("engines", script)],
@@ -47,6 +55,14 @@ def _run_pipeline():
             results[script] = "ok" if r.returncode == 0 else "fail"
         except Exception:
             results[script] = "fail"
+    try:
+        r = subprocess.run(
+            [sys.executable, project_path("engines", "crawl_gov_gd.py"), "--source", "gdee", "gzsw", "fssw", "gdtz"],
+            cwd=project_path(), timeout=240,
+        )
+        results["crawl_gov_gd.py"] = "ok" if r.returncode == 0 else "fail"
+    except Exception:
+        results["crawl_gov_gd.py"] = "fail"
     try:
         r = subprocess.run(
             [sys.executable, project_path("engines", "rule_screen.py"), "--reset"],

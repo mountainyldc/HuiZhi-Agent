@@ -17,3 +17,6 @@ data/rag/pdf/
 # pytest 缓存与本地设置不入库（clone 即用靠默认值重建）
 .pytest_cache/
 data/settings.json
+
+data/mail_config.json
+

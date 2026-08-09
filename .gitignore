@@ -14,3 +14,7 @@ Thumbs.db
 /[0-9][0-9]-*.md
 ClaudeCode-Agent-Loop.png
 adr/
+
+# 遗留空壳目录（数据库不入库）
+ICBC-HuiZhi-Agent/
+

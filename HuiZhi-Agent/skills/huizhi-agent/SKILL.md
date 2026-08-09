@@ -62,6 +62,17 @@ new(新发现) → verifying(待核实) → contacted(已联系)；另有 invali
 ### mark_invalid
 标记商机无效：`opportunity_id`，状态 → invalid，移出队列。
 
+
+### send_daily_report
+发送今日商机日报邮件（队列 Top N 摘要，默认 10 条）。参数：`to`(收件人，默认取配置)、`top`。
+用户说"把商机日报发我邮箱"时调用。
+
+### send_company_report
+发送指定公司商机摘要邮件（分数/标签/触发事件）。参数：`company`(必填)、`to`、`top`。
+用户说"把东鹏饮料的商机发我邮箱"时调用。
+
+> SMTP 配置：环境变量或 data/mail_config.json（授权码不入 Git）。
+
 ## 注意事项
 - 流程顺序固定：抓取 → 初筛 → 复核 → 队列 → 渲染
 - 认领/标记无效后建议重新执行 build_daily_queue + render_web 刷新页面

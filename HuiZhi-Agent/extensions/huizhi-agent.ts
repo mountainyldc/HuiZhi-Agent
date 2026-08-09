@@ -454,6 +454,55 @@ const invalidTool = {
   },
 };
 
+
+const sendDailyReportTool = {
+  name: "send_daily_report",
+  label: "发送今日商机日报",
+  description:
+    "把最新商机队列的 Top N 摘要以邮件发送到指定邮箱（默认使用本地 mail_config.json 或 SMTP 环境变量）。" +
+    "调用 python engines/send_mail.py --daily。",
+  promptSnippet: "发送今日商机日报邮件",
+  promptGuidelines: [
+    "用户要求把商机日报/队列发到邮箱时调用",
+    "可选参数 to 指定收件人，默认取配置中的收件人",
+    "返回'已发送至 xxx'表示成功",
+  ],
+  parameters: Type.Object({
+    to: Type.Optional(Type.String({ description: "收件人邮箱，默认取配置" })),
+    top: Type.Optional(Type.Integer({ description: "发送 Top N 条，默认10" })),
+  }),
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    const args: string[] = ["--daily"];
+    if (params.to) args.push("--to", String(params.to));
+    if (params.top) args.push("--top", String(params.top));
+    return runPython("send_mail.py", args, resolveEnginesForCwd(ctx?.cwd));
+  },
+};
+
+const sendCompanyReportTool = {
+  name: "send_company_report",
+  label: "发送公司商机摘要邮件",
+  description:
+    "把指定公司在商机队列中的条目（分数/标签/触发事件）以邮件发送到指定邮箱。调用 python engines/send_mail.py --report。",
+  promptSnippet: "把某公司的商机摘要发到邮箱",
+  promptGuidelines: [
+    "用户要求把某家公司的商机/摘要发到邮箱时调用",
+    "company 必填，如 东鹏饮料",
+    "返回'已发送至 xxx'表示成功",
+  ],
+  parameters: Type.Object({
+    company: Type.String({ description: "公司名称，如 东鹏饮料" }),
+    to: Type.Optional(Type.String({ description: "收件人邮箱，默认取配置" })),
+    top: Type.Optional(Type.Integer({ description: "发送 Top N 条，默认10" })),
+  }),
+  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
+    const args: string[] = ["--report", String(params.company)];
+    if (params.to) args.push("--to", String(params.to));
+    if (params.top) args.push("--top", String(params.top));
+    return runPython("send_mail.py", args, resolveEnginesForCwd(ctx?.cwd));
+  },
+};
+
 export default function fxLeadRadar(pi: ExtensionAPI) {
   pi.registerTool(crawlTool);
   pi.registerTool(crawlNewsTool);
@@ -472,6 +521,8 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
   pi.registerTool(webSearchTool);
   pi.registerTool(visitPitchTool);
   pi.registerTool(dispatchTool);
+  pi.registerTool(sendDailyReportTool);
+  pi.registerTool(sendCompanyReportTool);
 
   pi.registerCommand("radar", {
     description: "跑一遍企业外汇需求商机雷达全流程",
@@ -490,7 +541,7 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
 
   pi.on("session_start", async (_event, ctx) => {
     ctx.ui.notify(
-      "🛰️ 企业外汇智能体已就绪 | 17 tools\n" +
+      "🛰️ 企业外汇智能体已就绪 | 19 tools\n" +
       "  流程: crawl_cninfo / crawl_news / rule_screen / review_opportunity / build_daily_queue / render_web / start_server\n" +
       "  动作: claim_opportunity / mark_invalid\n" +
       "  RAG: analyze_company / ask_insights（证据级智能问答）\n" +
@@ -498,6 +549,7 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
       "  记忆: memory_status / clear_memory（跨轮次，追问可指代）\n" +
       "  搜索: web_search（实时联网，来源可点）\n" +
       "  规划: dispatch（意图路由）/ visit_pitch（拜访话术）\n" +
+      "  邮件: send_daily_report / send_company_report（商机日报/公司摘要）\n" +
       "  命令: /radar",
       "info"
     );

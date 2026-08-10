@@ -1,4 +1,4 @@
-# 工银汇智 · 企业外汇智能体（HuiZhi Agent）
+# 企业外汇智能体（HuiZhi Agent）
 
 > 基于 Pi Coding Agent 的企业外汇需求商机雷达 Agent
 >

@@ -2,7 +2,7 @@
 
 基于 Pi Coding Agent 的商机雷达：自动抓取公开数据 → 规则初筛（广东企业 + 外汇套保 + 45 天）
 → 5 维评分 → DeepSeek 大模型复核 → 生成每日商机队列 → 渲染 Web 页面 → 认领 / 标记无效。
-页面提供**商机雷达**（队列 + 详情 + 潜在业务判断 + 最新年报数据 + 沟通重点 + **企业画像卡** + **拜访话术**）与**资讯中心**
+页面提供**商机雷达**（队列 + 详情 + 潜在业务判断 + 最新年报数据 + 沟通重点 + **企业画像卡**）与**资讯中心**
 （搜索 / 来源筛选 / 时间窗口 / 分页）两个视图。2026-08-06 新增：看板**设置**（规则过滤词/排除词/时间窗口）、
 **跨轮次会话记忆**、**按需实时 Web 搜索**、**意图路由 dispatch**，Pi 工具扩展至 18 个。数据源：巨潮资讯 · 东方财富 7x24 · 同花顺财经直播 · 新浪财经 · 港交所披露易 · 商务部机电产品国际招标 · 广东省投资项目在线审批监管平台 · 广东省生态环境厅 · 广州/佛山市商务局。
 
@@ -46,7 +46,6 @@ python engines/index_docs.py            # 分块 + Embedding(百炼) + FAISS + F
 python engines/retrieve.py --query "外汇套保"     # 混合检索（BM25+向量 RRF 融合）
 python engines/rag_answer.py --query "帮我分析东鹏饮料的外汇需求"  # 带 [来源N] 引用回答
 python engines/build_insights.py --top 20        # 企业画像卡（营收/出口/敞口方向/历史套保/建议产品）
-python engines/visit_pitch.py --company 东鹏饮料 # 拜访话术（开场白/提纲/产品建议/异议应对）
 python engines/web_search.py --query "最近外汇管理局有什么新政策"  # 实时联网搜索（带来源链接）
 python engines/dispatch.py --query "帮我分析东鹏饮料的外汇需求"    # 意图路由（动态规划）
 python engines/memory.py                         # 查看/清除会话记忆（--clear 清除）
@@ -104,7 +103,6 @@ pi -e ./extensions/huizhi-agent.ts
 #   ask_insights(question=为什么东鹏排第一) → 自由提问
 # 新功能工具：
 #   company_insight(company=东鹏饮料)   → 企业画像卡（拜访前必看）
-#   visit_pitch(company=东鹏饮料)       → 生成拜访话术
 #   web_search(query=最近外汇管理局有什么新政策) → 实时联网搜索
 #   memory_status / clear_memory        → 跨轮次记忆查看/清除
 #   dispatch(query=...)                 → 意图路由，规划工具链
@@ -138,7 +136,6 @@ engines/
   retrieve.py         # RAG-4 混合检索：FTS5 BM25 + FAISS 向量 -> RRF 融合
   rag_answer.py       # RAG-5 证据拼 Prompt -> DeepSeek -> 带 [来源N] 引用回答（支持 --remember/--with-memory）
   build_insights.py   # 企业画像：公告+年报+舆情 -> DeepSeek -> company_insights 画像卡
-  visit_pitch.py      # 拜访话术：检索证据 -> 开场白/提纲/产品建议/异议应对
   web_search.py       # 实时搜索：Exa(mcporter) -> so.com -> 降级提示，结果带来源链接
   dispatch.py         # 意图路由：问法 -> 工具链（规则判断，可解释）
   memory.py           # 跨轮次记忆：最近分析公司/关注区域（可查看/清除）
@@ -166,7 +163,6 @@ config.yaml         # 地区/关键词/窗口/评分权重/LLM 配置
 | `/settings` | GET | 读取规则过滤设置（含默认值/生效值） |
 | `/settings` | POST | 保存关键词/排除词/时间窗口（下次运行生效） |
 | `/settings` | POST | `{action:"reset"}` 一键恢复默认 |
-| `/pitch` | POST | `{company:"东鹏饮料"}` 生成拜访话术 |
 
 ## 边界说明（已知不稳，已降级处理）
 

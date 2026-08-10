@@ -180,10 +180,6 @@
   .eye:hover { opacity: 1; }
   .news-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; flex-shrink: 0; }
   .page-btns { display: flex; gap: 8px; }
-  .pitch-sec { margin-bottom: 12px; }
-  .ps-k { font-size: 12px; color: var(--ink-3); font-weight: 650; margin-bottom: 5px; }
-  .ps-v { font-size: 13.5px; line-height: 1.8; color: var(--ink); background: #F5F3EC; border-radius: 8px; padding: 10px 12px; }
-  .pitch-body ul.qlist li { padding-left: 0; }
   .insight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .icell { background: #F5F3EC; border-radius: 10px; padding: 10px 12px; min-height: 74px; }
   .icell .ik { font-size: 11px; color: var(--ink-3); margin-bottom: 5px; }
@@ -497,7 +493,6 @@ function showDetail(id){
           </div>
         </div>
         <div class="hero-actions">
-          <button class="btn" onclick="genPitch('${esc(it.company_name)}')" style="border-color:var(--purple);color:var(--purple)">🎯 拜访话术</button>
           <button class="btn invalid" onclick="action('${it.opportunity_id}','invalid')">标记无效</button>
           <button class="btn claim" onclick="action('${it.opportunity_id}','claim')">确认有效</button>
         </div>
@@ -534,10 +529,6 @@ function showDetail(id){
 
     <div class="card"><h3><span class="no">4</span>建议沟通重点</h3>
       <ol class="qlist">${(rev.suggested_questions||[]).map(q=>`<li>${esc(q)}</li>`).join("")||"<li>（暂无）</li>"}</ol>
-    </div>
-
-    <div class="card"><h3><span class="no">4+</span>拜访话术</h3>
-      <div id="pitchBody"><div class="fin-empty">点击右上角「🎯 拜访话术」为 ${esc(it.company_name)} 生成 30 秒开场白 + 拜访提纲 + 产品建议 + 异议应对。</div></div>
     </div>
 
     <div class="card"><h3><span class="no">5</span>判断依据</h3>
@@ -589,38 +580,6 @@ function renderKPIs(){
   document.getElementById("kVerifying").textContent = items.filter(i=>i.lifecycle==="verifying").length;
   document.getElementById("kClaimed").textContent = items.filter(i=>i.owner).length;
 }
-/* ---- 拜访话术 ---- */
-async function genPitch(company){
-  const box = document.getElementById("pitchBody");
-  if(!box || !company) return;
-  box.innerHTML = `<div class="fin-empty">正在生成拜访话术（检索证据 + DeepSeek），约 10-30 秒…</div>`;
-  try{
-    const r = await fetch("/pitch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({company})});
-    if(!r.ok){ const j = await r.json().catch(()=>({})); throw new Error(j.error || ("http "+r.status)); }
-    const j = await r.json();
-    box.innerHTML = renderPitch(j);
-  }catch(e){
-    box.innerHTML = `<div class="fin-empty">话术生成失败：${esc(String(e))}<br>请确认已配置 DEEPSEEK_API_KEY 并通过 python serve.py 访问。</div>`;
-  }
-}
-function renderPitch(p){
-  const opening = p.opening || "";
-  const outline = (p.outline||[]).map(s=>`<li>${esc(typeof s==="string"?s:(s.title||s))}</li>`).join("");
-  const products = (p.products||[]).map(s=>`<li>${esc(typeof s==="string"?s:(s.title||s))}</li>`).join("");
-  const obj = (p.objections||[]).map(s=>{
-    if(typeof s === "string") return `<li>${esc(s)}</li>`;
-    return `<li><b>客户：</b>${esc(s.client||"")}<br><b>回应：</b>${esc(s.response||"")}</li>`;
-  }).join("");
-  const facts = (p.key_facts||[]).map(f=>`<li>${esc(f.fact||"")} <span style="color:var(--ink-3);font-size:11px">— ${esc(f.source||"")} ${esc(f.date||"")}</span></li>`).join("");
-  return `
-    <div class="pitch-sec"><div class="ps-k">30 秒电话开场白（可照读）</div><div class="ps-v">${esc(opening)}</div></div>
-    <div class="pitch-sec"><div class="ps-k">上门拜访提纲</div><ol class="qlist">${outline||"<li>（无）</li>"}</ol></div>
-    <div class="pitch-sec"><div class="ps-k">产品建议</div><ul class="qlist">${products||"<li>（无）</li>"}</ul></div>
-    <div class="pitch-sec"><div class="ps-k">常见异议应对</div><ul class="qlist" style="list-style:none">${obj||"<li>（无）</li>"}</ul></div>
-    ${facts?`<div class="pitch-sec"><div class="ps-k">关键事实（可追溯）</div><ul class="qlist">${facts}</ul></div>`:""}
-    <div class="foot">生成于 ${esc(p.generated_at||"")} · 未标「需核实」的事实均来自检索证据，数字请以原文为准。</div>`;
-}
-
 /* ---- 设置 ---- */
 let settingsData = null;
 function openSettings(){

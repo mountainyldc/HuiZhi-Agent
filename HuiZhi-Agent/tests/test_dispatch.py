@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""dispatch.py：6 类意图路由（规则判断）。"""
+"""dispatch.py：意图路由（规则判断）。"""
 import dispatch
 import store
 
@@ -19,13 +19,6 @@ def test_route_pipeline(monkeypatch):
 def test_route_web_search(monkeypatch):
     _no_store(monkeypatch)
     assert dispatch.route("最近外汇管理局有什么新政策")["intent"] == "web_search"
-
-
-def test_route_visit_pitch(monkeypatch):
-    _no_store(monkeypatch)
-    r = dispatch.route("帮东鹏饮料生成拜访话术")
-    assert r["intent"] == "visit_pitch"
-    assert "visit_pitch" in r["suggested_tools"]
 
 
 def test_route_company_insight(monkeypatch):

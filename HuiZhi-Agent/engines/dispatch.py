@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """意图路由引擎（P1-2 动态规划）：把用户问法路由到对应工具链。
 
-规则判断（非 LLM，稳定可解释）：分析公司 / 跑全流程 / 生成话术 / 查画像 / 查队列 / 实时搜索 / 普通问答。
+规则判断（非 LLM，稳定可解释）：分析公司 / 跑全流程 / 查画像 / 查队列 / 实时搜索 / 普通问答。
 
 用法:
   python dispatch.py --query "帮我分析东鹏饮料的外汇需求"
@@ -45,17 +45,6 @@ def route(query):
             "suggested_tools": ["send_daily_report", "send_company_report"],
             "command_hint": None,
         }
-    # 4) 拜访话术
-
-    if re.search(r"(话术|开场白|拜访提纲|怎么开口|怎么约)", q):
-        company = _company(q)
-        return {
-            "intent": "visit_pitch",
-            "reason": "命中话术/拜访关键词",
-            "suggested_tools": ["company_insight", "visit_pitch"],
-            "command_hint": None,
-            "company": company,
-        }
     # 4) 企业画像
     if re.search(r"(画像|企业档案|基本情况|拜访前必看)", q):
         company = _company(q)
@@ -93,7 +82,7 @@ def route(query):
     }
 
 
-_COMPANY_RE = re.compile(r"(?:分析|话术|画像|看看|了解|查|评估)?\s*([\u4e00-\u9fffA-Za-z0-9]{2,12}?)(?:的|的外汇|公司|企业)?")
+_COMPANY_RE = re.compile(r"(?:分析|画像|看看|了解|查|评估)?\s*([\u4e00-\u9fffA-Za-z0-9]{2,12}?)(?:的|的外汇|公司|企业)?")
 
 
 def _company(q):

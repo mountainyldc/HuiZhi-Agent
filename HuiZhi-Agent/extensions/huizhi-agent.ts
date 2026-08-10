@@ -316,30 +316,11 @@ const askInsightsTool = {
   },
 };
 
-const visitPitchTool = {
-  name: "visit_pitch",
-  label: "生成拜访话术",
-  description:
-    "为某家上市公司生成拜访话术：30秒电话开场白（可照读）+ 上门拜访提纲 + 产品建议 + 常见异议应对。" +
-    "具体数字/事实来自检索证据，证据中没有的标「需核实」。适用问题：'帮东鹏饮料生成拜访话术'。",
-  promptSnippet: "生成某公司的拜访话术",
-  promptGuidelines: [
-    "company 必填（公司全名）",
-    "话术输出含关键事实与来源，可直接给客户经理照读",
-  ],
-  parameters: Type.Object({
-    company: Type.String({ description: "公司名称，如：东鹏饮料" }),
-  }),
-  async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
-    return runPython("visit_pitch.py", ["--company", params.company, "--json"], resolveEnginesForCwd(ctx?.cwd));
-  },
-};
-
 const dispatchTool = {
   name: "dispatch",
   label: "意图路由（动态规划）",
   description:
-    "把用户问法路由到对应工具链：分析公司/跑全流程/生成话术/查画像/查队列/实时搜索/普通问答。" +
+    "把用户问法路由到对应工具链：分析公司/跑全流程/查画像/查队列/实时搜索/普通问答。" +
     "规则判断，稳定可解释，输出建议的工具调用顺序。接到复杂任务时先用本工具规划。",
   promptSnippet: "规划工具链（意图路由）",
   promptGuidelines: [
@@ -520,7 +501,6 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
   pi.registerTool(memoryStatusTool);
   pi.registerTool(clearMemoryTool);
   pi.registerTool(webSearchTool);
-  pi.registerTool(visitPitchTool);
   pi.registerTool(dispatchTool);
   pi.registerTool(sendDailyReportTool);
   pi.registerTool(sendCompanyReportTool);
@@ -549,7 +529,7 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
       "  画像: company_insight（拜访前必看画像卡）\n" +
       "  记忆: memory_status / clear_memory（跨轮次，追问可指代）\n" +
       "  搜索: web_search（实时联网，来源可点）\n" +
-      "  规划: dispatch（意图路由）/ visit_pitch（拜访话术）\n" +
+      "  规划: dispatch（意图路由）\n" +
       "  邮件: send_daily_report / send_company_report（商机日报/公司摘要）\n" +
       "  命令: /radar",
       "info"

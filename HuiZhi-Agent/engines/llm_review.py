@@ -5,6 +5,7 @@
 
 用法:
   python llm_review.py              # 复核全部未复核商机
+  python llm_review.py --top 10     # 只复核评分最高的前 10 条（演示/日常够用）
   python llm_review.py --id opp_xx  # 复核指定商机
   python llm_review.py --dry-run    # 只打印提示词，不调用
 """
@@ -104,6 +105,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--id", default=None)
     ap.add_argument("--all", action="store_true")
+    ap.add_argument("--top", type=int, default=None,
+                    help="只复核评分最高的前 N 条（配合 --all 使用，默认不限制）")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -122,6 +125,10 @@ def main():
             opps = [o for o in opps if store.get_review(o["id"]) is None]
     else:
         opps = []
+
+    if args.top:
+        opps = sorted(opps, key=lambda o: o["score"] or 0, reverse=True)[:args.top]
+        print(f"[info] --top {args.top}：本次只复核评分最高的 {len(opps)} 条", file=sys.stderr)
 
     if not opps:
         print("[result] 没有待复核商机")

@@ -152,10 +152,11 @@ const reviewTool = {
   parameters: Type.Object({
     opportunity_id: Type.Optional(Type.String({ description: "商机ID" })),
     all: Type.Optional(Type.Boolean({ description: "复核全部未复核商机" })),
+    top: Type.Optional(Type.Number({ description: "只复核评分最高的前 N 条（默认 10）" })),
   }),
   async execute(_toolCallId: string, params: any, _signal?: any, _onUpdate?: any, ctx?: any) {
     const ed = resolveEnginesForCwd(ctx?.cwd);
-    if (params.all) return runPython("llm_review.py", ["--all"], ed);
+    if (params.all) return runPython("llm_review.py", ["--all", "--top", String(params.top ?? 10)], ed);
     if (params.opportunity_id) return runPython("llm_review.py", ["--id", params.opportunity_id], ed);
     return "请提供 opportunity_id 或 all=true";
   },

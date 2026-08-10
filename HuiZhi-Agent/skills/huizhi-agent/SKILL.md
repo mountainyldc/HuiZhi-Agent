@@ -47,7 +47,7 @@ new(新发现) → verifying(待核实) → contacted(已联系)；另有 invali
 公告走硬规则（广东+套保+45天），舆情走软信号路径（65 分起）。返回命中商机列表。
 
 ### review_opportunity
-大模型复核商机（DeepSeek）。参数：`opportunity_id` 或 `all=true`。
+大模型复核商机（DeepSeek）。参数：`opportunity_id` 或 `all=true`（默认只复核评分最高的前 10 条，可用 `top` 调整，避免逐条复核过慢）。
 生成证据摘要/已知未知事实/建议沟通问题/复核分；无 Key 时跳过。
 
 ### build_daily_queue

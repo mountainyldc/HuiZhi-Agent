@@ -522,7 +522,7 @@ export default function fxLeadRadar(pi: ExtensionAPI) {
 
   pi.on("session_start", async (_event, ctx) => {
     ctx.ui.notify(
-      "🛰️ 企业外汇智能体已就绪 | 19 tools\n" +
+      "🛰️ 企业外汇智能体已就绪 | 18 tools\n" +
       "  流程: crawl_cninfo / crawl_news / rule_screen / review_opportunity / build_daily_queue / render_web / start_server\n" +
       "  动作: claim_opportunity / mark_invalid\n" +
       "  RAG: analyze_company / ask_insights（证据级智能问答）\n" +
